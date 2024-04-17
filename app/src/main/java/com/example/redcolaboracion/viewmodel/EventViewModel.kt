@@ -1,6 +1,7 @@
 package com.example.redcolaboracion.viewmodel
 
 import android.util.Log
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.example.redcolaboracion.model.Event
@@ -9,41 +10,37 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.firestore
 
 class EventViewModel: ViewModel() {
-    var uiEvent = mutableStateOf(Event())
+    val uiEventsList: MutableList<MutableState<Event>> = mutableListOf()
     val TAG = "EventViewModel"
     private lateinit var auth: FirebaseAuth
 
     fun readEvent() {
         val db = Firebase.firestore
-        val docRef = db.collection("events").document("qNp8A7wMwyr0djIkxdKt")
-        docRef.addSnapshotListener { snapshot, e ->
-            if (e != null) {
-                Log.w(TAG, "Listen failed.", e)
-                return@addSnapshotListener
-            }
+        val docRef = db.collection("events").get()
 
-            val source = if (snapshot != null && snapshot.metadata.hasPendingWrites()) {
+        docRef.addOnSuccessListener  { documents ->
+
+            val source = if (documents != null && documents.metadata.hasPendingWrites()) {
                 "Local"
             } else {
                 "Server"
             }
 
-            if (snapshot != null && snapshot.exists()) {
-                Log.d(TAG, "$source data: ${snapshot.data}")
-
-                val id = snapshot.get("id").toString()
-                val title = snapshot.get("title").toString()
-                val date = snapshot.get("date").toString()
-                val imageUrl = snapshot.get("imageUrl").toString()
-                val content = snapshot.get("content").toString()
-                val startPublishDate = snapshot.get("startPublishDate").toString()
-                val endPublishDate= snapshot.get("endPublishDate").toString()
-
-                uiEvent.value = Event(id, title, date, imageUrl, content, startPublishDate, endPublishDate)
-
-            } else {
-                Log.d(TAG, "$source data: null")
+            for (doc in documents!!) {
+                val eventData = doc.data
+                val event = Event(
+                    title = eventData["title"] as? String ?: "",
+                    imageUrl = eventData["imageUrl"] as? String ?: "",
+                    content = eventData["content"] as? String ?: "",
+                    date = eventData["date"] as? String ?: "",
+                    startPublishDate = eventData["startPublishDate"] as? String ?: "",
+                    endPublishDate = eventData["endPublishDate"] as? String ?: ""
+                )
+                println("Titulo: "+event.title)
+                val uiEvent = mutableStateOf(event)
+                uiEventsList.add(uiEvent)
             }
         }
+        println("Termina viewModel")
     }
 }
