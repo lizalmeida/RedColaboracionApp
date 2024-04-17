@@ -9,6 +9,9 @@ import com.example.redcolaboracion.model.Event
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.firestore
+import java.text.SimpleDateFormat
+import java.util.Locale
+import com.google.firebase.Timestamp
 
 class EventViewModel: ViewModel() {
     var uiEventsList = mutableStateListOf<Event>()
@@ -16,6 +19,7 @@ class EventViewModel: ViewModel() {
 
     fun readEvent() {
         val db = Firebase.firestore
+        val formato = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
         val docRef = db.collection("events").get()
         docRef.addOnSuccessListener  { documents ->
@@ -30,7 +34,8 @@ class EventViewModel: ViewModel() {
                 val doc_title = doc["title"].toString()
                 val doc_content = doc["content"].toString()
                 val doc_imageUrl = doc["imageUrl"].toString()
-                val doc_date = doc["date"].toString()
+                val timestampFromFirestore: Timestamp = doc["date"] as Timestamp
+                val doc_date = formato.format(timestampFromFirestore.toDate()).toString() //doc["date"].toString()
                 val event1 = Event(
                     id = doc_id,
                     title = doc_title,
