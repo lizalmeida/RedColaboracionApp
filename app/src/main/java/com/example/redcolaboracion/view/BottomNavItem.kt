@@ -8,6 +8,7 @@ import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.ui.graphics.vector.ImageVector
 
 sealed class BottomNavItem(
@@ -22,11 +23,11 @@ sealed class BottomNavItem(
         selectedIcon = Icons.Filled.Home,
         title = "Home"
     )
-    data object Favourites: BottomNavItem(
-        route = "favourites",
-        unselectedIcon = Icons.Outlined.Star,
+    data object MyRequests: BottomNavItem(
+        route = "myrequests",
+        unselectedIcon = Icons.Outlined.ThumbUp,
         selectedIcon = Icons.Filled.Star,
-        title = "Favourites"
+        title = "My Requests"
     )
 
     data object Profile: BottomNavItem(

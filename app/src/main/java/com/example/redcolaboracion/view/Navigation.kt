@@ -24,7 +24,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.redcolaboracion.viewmodel.EventViewModel
+import com.example.redcolaboracion.viewmodel.LoginViewModel
 
 @Composable
 fun HomeScreen(viewModel: EventViewModel) {
@@ -39,7 +41,7 @@ fun HomeScreen(viewModel: EventViewModel) {
 }
 
 @Composable
-fun FavouritesScreen() {
+fun MyRequestsScreen() {
     var text by rememberSaveable { mutableStateOf("Hello") }
     Column(
         verticalArrangement = Arrangement.Center,
@@ -47,7 +49,7 @@ fun FavouritesScreen() {
         modifier = Modifier
             .fillMaxSize()
     ) {
-        Text("$text Favourites Screen")
+        Text("$text MyRequests Screen")
         Button(onClick = { text = "Bye" }) {
             Text("Change text")
         }
@@ -55,33 +57,34 @@ fun FavouritesScreen() {
 }
 
 @Composable
-fun ProfileScreen() {
-    Box(
-        contentAlignment = Alignment.Center,
+fun ProfileScreen(viewModel: LoginViewModel) {
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxSize()
     ) {
-        Text("Profile Screen")
+        LoginScreen(viewModel)
     }
 }
 
 @Composable
-fun NavigationGraph(eventViewModel: EventViewModel, navController: NavHostController) {
+fun NavigationGraph(eventViewModel: EventViewModel, loginViewModel: LoginViewModel, navController: NavHostController) {
     NavHost(navController = navController, startDestination = BottomNavItem.Home.route) {
         composable(BottomNavItem.Home.route) { HomeScreen(eventViewModel) }
-        composable(BottomNavItem.Favourites.route) { FavouritesScreen() }
-        composable(BottomNavItem.Profile.route) { ProfileScreen() }
+        composable(BottomNavItem.MyRequests.route) { MyRequestsScreen() }
+        composable(BottomNavItem.Profile.route) { ProfileScreen(loginViewModel) }
     }
 }
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun MainScreen(eventViewModel: EventViewModel) {
+fun MainScreen(eventViewModel: EventViewModel, loginViewModel: LoginViewModel) {
     val navController = rememberNavController()
     Scaffold(
         bottomBar =  { BottomTabBar(navController = navController) }
     ) {
-        NavigationGraph(eventViewModel, navController)
+        NavigationGraph(eventViewModel, loginViewModel, navController)
     }
 }
 
@@ -89,7 +92,7 @@ fun MainScreen(eventViewModel: EventViewModel) {
 fun BottomTabBar(navController: NavHostController) {
     val tabBarItems = listOf(
         BottomNavItem.Home,
-        BottomNavItem.Favourites,
+        BottomNavItem.MyRequests,
         BottomNavItem.Profile
     )
 
@@ -132,5 +135,5 @@ fun BottomTabBar(navController: NavHostController) {
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun PreviewMain() {
-    MainScreen(eventViewModel = EventViewModel())
+    MainScreen(eventViewModel = EventViewModel(), loginViewModel = LoginViewModel())
 }
