@@ -4,6 +4,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Person
@@ -26,7 +27,7 @@ sealed class BottomNavItem(
     data object MyRequests: BottomNavItem(
         route = "myrequests",
         unselectedIcon = Icons.Outlined.ThumbUp,
-        selectedIcon = Icons.Filled.Star,
+        selectedIcon = Icons.Filled.ThumbUp,
         title = "My Requests"
     )
 

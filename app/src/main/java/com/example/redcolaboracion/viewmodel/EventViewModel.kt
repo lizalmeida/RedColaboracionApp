@@ -29,6 +29,7 @@ class EventViewModel: ViewModel() {
                 "Server"
             }
 
+            uiEventsList.clear()
             for (doc in documents) {
                 val doc_id = doc["id"].toString()
                 val doc_title = doc["title"].toString()

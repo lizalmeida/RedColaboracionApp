@@ -117,13 +117,13 @@ fun EventRow(event: Event) {
             Row{
                 Text(
                     text = "Próxima reunión: ",
-                    fontSize = 18.sp,
+                    fontSize = 16.sp,
                     modifier = Modifier
                         .padding(horizontal = 2.dp)
                 )
                 Text(
                     text = event.date,
-                    fontSize = 18.sp,
+                    fontSize = 16.sp,
                     color = Color.Black
                 )
             }

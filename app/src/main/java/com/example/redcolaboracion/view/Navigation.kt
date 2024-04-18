@@ -41,7 +41,7 @@ fun HomeScreen(viewModel: EventViewModel) {
 }
 
 @Composable
-fun MyRequestsScreen() {
+fun MyRequestScreenN() {
     var text by rememberSaveable { mutableStateOf("Hello") }
     Column(
         verticalArrangement = Arrangement.Center,
@@ -49,7 +49,7 @@ fun MyRequestsScreen() {
         modifier = Modifier
             .fillMaxSize()
     ) {
-        Text("$text MyRequests Screen")
+        Text("$text MyRequest Screen")
         Button(onClick = { text = "Bye" }) {
             Text("Change text")
         }
@@ -72,7 +72,7 @@ fun ProfileScreen(viewModel: LoginViewModel) {
 fun NavigationGraph(eventViewModel: EventViewModel, loginViewModel: LoginViewModel, navController: NavHostController) {
     NavHost(navController = navController, startDestination = BottomNavItem.Home.route) {
         composable(BottomNavItem.Home.route) { HomeScreen(eventViewModel) }
-        composable(BottomNavItem.MyRequests.route) { MyRequestsScreen() }
+        composable(BottomNavItem.MyRequests.route) { CameraPreview(navController) }
         composable(BottomNavItem.Profile.route) { ProfileScreen(loginViewModel) }
     }
 }

@@ -11,7 +11,11 @@ import com.google.firebase.firestore.firestore
 
 data class User(
     val name: String,
-    val lastname: String
+    val lastname: String,
+    val imageUrl: String,
+    val phone: String,
+    val address: String,
+    val location: String
 )
 class LoginViewModel: ViewModel() {
     var uiState = mutableStateOf(LoginUIState())
@@ -60,8 +64,12 @@ class LoginViewModel: ViewModel() {
 
                 val name = snapshot.get("name").toString()
                 val lastname = snapshot.get("lastname").toString()
+                val imageUrl = snapshot.get("imageUrl").toString()
+                val phone = snapshot.get("phone").toString()
+                val address = snapshot.get("address").toString()
+                val location = snapshot.get("location").toString()
 
-                uiState.value = LoginUIState(name, lastname)
+                uiState.value = LoginUIState(name, lastname, imageUrl, phone, address, location)
 
             } else {
                 Log.d(TAG, "$source data: null")
