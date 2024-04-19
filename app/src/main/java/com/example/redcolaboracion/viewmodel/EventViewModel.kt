@@ -1,13 +1,9 @@
 package com.example.redcolaboracion.viewmodel
 
-import android.util.Log
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.example.redcolaboracion.model.Event
 import com.google.firebase.Firebase
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.firestore
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -36,7 +32,7 @@ class EventViewModel: ViewModel() {
                 val doc_content = doc["content"].toString()
                 val doc_imageUrl = doc["imageUrl"].toString()
                 val timestampFromFirestore: Timestamp = doc["date"] as Timestamp
-                val doc_date = formato.format(timestampFromFirestore.toDate()).toString() //doc["date"].toString()
+                val doc_date = formato.format(timestampFromFirestore.toDate()).toString()
                 val event1 = Event(
                     id = doc_id,
                     title = doc_title,
@@ -48,6 +44,5 @@ class EventViewModel: ViewModel() {
                 uiEventsList.add(event1)
             }
         }
-        //println("Titulo1: " + dsEventList[0].title)
     }
 }

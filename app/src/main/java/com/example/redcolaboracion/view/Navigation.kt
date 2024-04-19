@@ -2,7 +2,6 @@ package com.example.redcolaboracion.view
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.BottomAppBar
@@ -24,7 +23,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.redcolaboracion.viewmodel.EventViewModel
 import com.example.redcolaboracion.viewmodel.LoginViewModel
 
@@ -114,10 +112,8 @@ fun BottomTabBar(navController: NavHostController) {
                                 }
                             }
                         }
-
                         // evitar que se recomponga la misma ruta
                         launchSingleTop = true
-
                         restoreState = true
                     }
                 },

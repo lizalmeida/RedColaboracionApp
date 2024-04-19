@@ -3,32 +3,20 @@ package com.example.redcolaboracion.view
 import android.Manifest
 import android.annotation.SuppressLint
 import android.net.Uri
-import android.util.Log
 import android.view.ViewGroup
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.Preview
-import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-
-//import androidx.camera.compose.CameraPreview
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.view.LifecycleCameraController
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Face
 import androidx.compose.material3.Button
-import androidx.compose.material3.FabPosition
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.viewinterop.AndroidView
@@ -41,9 +29,7 @@ import java.util.concurrent.Executor
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.firebase.Firebase
 import com.google.firebase.storage.storage
-import retrofit2.http.Tag
 
-//import androidx.camera.compose.CameraXConfig
 @OptIn(ExperimentalPermissionsApi::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -59,6 +45,7 @@ fun CameraPreview(navHostController: NavHostController) {
     LaunchedEffect(Unit) {
         permissionState.launchPermissionRequest()
     }
+
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Top,
@@ -87,9 +74,10 @@ private fun takePicture(cameraController: LifecycleCameraController, executor: E
     val outputDirectory = ImageCapture.OutputFileOptions.Builder(file).build()
     val storageRef = Firebase.storage.reference
     val photoRef = storageRef.child("images/foto.jpg")
+
     cameraController.takePicture(outputDirectory, executor, object: ImageCapture.OnImageSavedCallback{
         override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-            cameraController.unbind()//cierra la camara
+            cameraController.unbind()
             val uploadTask = photoRef.putFile(Uri.fromFile(file))
             uploadTask.addOnSuccessListener {
                 navHostController.navigate(BottomNavItem.MyRequests.route)
@@ -97,7 +85,6 @@ private fun takePicture(cameraController: LifecycleCameraController, executor: E
                 println("Error al tomar foto")
             }
         }
-
         override fun onError(exception: ImageCaptureException) {
             println("Error al tomar foto")
         }
