@@ -3,6 +3,7 @@ package com.example.redcolaboracion.view
 import android.Manifest
 import android.annotation.SuppressLint
 import android.net.Uri
+import android.util.Log
 import android.view.ViewGroup
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.Preview
@@ -22,8 +23,12 @@ import androidx.core.content.ContextCompat
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.view.LifecycleCameraController
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Face
+import androidx.compose.material3.Button
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.viewinterop.AndroidView
@@ -34,66 +39,68 @@ import com.google.accompanist.permissions.isGranted
 import java.io.File
 import java.util.concurrent.Executor
 import com.google.accompanist.permissions.rememberPermissionState
+import com.google.firebase.Firebase
+import com.google.firebase.storage.storage
+import retrofit2.http.Tag
 
 //import androidx.camera.compose.CameraXConfig
 @OptIn(ExperimentalPermissionsApi::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun CameraPreview(navHostController: NavHostController) {
-    val permissionState = rememberPermissionState(permission = Manifest.permission.CAMERA)
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
+    val cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
     val cameraController = remember {
         LifecycleCameraController(context)
     }
-    val cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
 
-    //var cameraProvider: ProcessCameraProvider? by remember { mutableStateOf(null) }
-
+    val permissionState = rememberPermissionState(permission = Manifest.permission.CAMERA)
     LaunchedEffect(Unit) {
         permissionState.launchPermissionRequest()
     }
-
-    Scaffold(
+    Column(
         modifier = Modifier.fillMaxSize(),
-
-        floatingActionButton = {
-            FloatingActionButton(onClick = {
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Button(
+            onClick = {
                 val executor = ContextCompat.getMainExecutor(context)
                 takePicture(cameraController, executor, navHostController)
-            }) {
-                Text(text = "Foto")
-            }
-        },
-        floatingActionButtonPosition = FabPosition.Center,
-//        fabOffset = 16.dp
-    ) {
+                      },
+            modifier = Modifier
+                .padding(16.dp)
+        ) {
+            Text(text = "Tomar Foto")
+        }
         if (permissionState.status.isGranted) {
-            CameraController(cameraController, lifecycleOwner, cameraSelector, modifier = Modifier.padding(it))
+            CameraController(cameraController, lifecycleOwner, cameraSelector)
         } else {
-            Text(text = "Permiso Denegado", modifier = Modifier.padding(it))
+            Text(text = "Permiso Denegado", modifier = Modifier.fillMaxSize())
         }
     }
 }
 
 private fun takePicture(cameraController: LifecycleCameraController, executor: Executor, navHostController: NavHostController){
-    val file = File.createTempFile("foto",".jpg") //Guardar en firestorage
+    val file = File.createTempFile("foto",".jpg")
     val outputDirectory = ImageCapture.OutputFileOptions.Builder(file).build()
+    val storageRef = Firebase.storage.reference
+    val photoRef = storageRef.child("images/foto.jpg")
     cameraController.takePicture(outputDirectory, executor, object: ImageCapture.OnImageSavedCallback{
         override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
             cameraController.unbind()//cierra la camara
-            val savedUri = outputFileResults.savedUri ?: Uri.fromFile(file)
-            println("ruta imagen: "+outputFileResults.savedUri)
-            val encodedUri = Uri.encode(savedUri.toString())
-
-            navHostController.navigate(BottomNavItem.MyRequests.route)
+            val uploadTask = photoRef.putFile(Uri.fromFile(file))
+            uploadTask.addOnSuccessListener {
+                navHostController.navigate(BottomNavItem.MyRequests.route)
+            }.addOnFailureListener { exception ->
+                println("Error al tomar foto")
+            }
         }
 
         override fun onError(exception: ImageCaptureException) {
-
-            println("error al tomar foto")
+            println("Error al tomar foto")
         }
-
     })
 }
 
@@ -101,12 +108,13 @@ private fun takePicture(cameraController: LifecycleCameraController, executor: E
 fun CameraController(
     cameraController: LifecycleCameraController,
     lifecicly: LifecycleOwner,
-    cameraSelector: CameraSelector,
-    modifier: Modifier
+    cameraSelector: CameraSelector
 ) {
     cameraController.bindToLifecycle(lifecicly)
     cameraController.cameraSelector = cameraSelector
-    AndroidView(modifier = modifier, factory = { context ->
+    AndroidView(
+        modifier = Modifier.fillMaxSize(),
+        factory = { context ->
         val previewView = PreviewView(context).apply {
             layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
