@@ -64,8 +64,9 @@ fun LoginScreen(viewModel: LoginViewModel) {
             )
             TextField(
                 value = email,
-                onValueChange = { email = it },
-                label = { Text(text = "Ingrese su email") })
+                onValueChange = {email = it},
+                label = { Text(text = "Ingrese su email") }
+            )
             Spacer(modifier = Modifier.height(4.dp))
             TextField(
                 value = password,
