@@ -2,6 +2,7 @@ package com.example.redcolaboracion.navigation
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
@@ -30,13 +31,13 @@ sealed class BottomNavItem(
         route = "requested_help",
         unselectedIcon = Icons.Outlined.ThumbUp,
         selectedIcon = Icons.Filled.ThumbUp,
-        title = "Pido Ayuda"
+        title = "PidoAyuda"
     )
     data object GivedHelp: BottomNavItem(
         route = "gived_help",
         unselectedIcon = Icons.Outlined.FavoriteBorder,
-        selectedIcon = Icons.Filled.FavoriteBorder,
-        title = "Doy Ayuda"
+        selectedIcon = Icons.Filled.Favorite,
+        title = "DoyAyuda"
     )
     data object History: BottomNavItem(
         route = "history",
