@@ -9,7 +9,15 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavHostController
+import androidx.navigation.Navigation
+import com.example.redcolaboracion.navigation.AppNavigation
+import com.example.redcolaboracion.navigation.MainScreen
+import com.example.redcolaboracion.navigation.NavigationGraph
 import com.example.redcolaboracion.ui.theme.RedColaboracionAppTheme
+import com.example.redcolaboracion.view.SplashScreen
+import com.example.redcolaboracion.viewmodel.EventViewModel
+import com.example.redcolaboracion.viewmodel.ProfileViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -21,7 +29,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    Greeting("Android")
+                    SplashScreen()
                 }
             }
         }
@@ -31,17 +39,4 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
 }
-/*
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    RedColaboracionAppTheme {
-        Greeting("Android")
-    }
-}
-*/

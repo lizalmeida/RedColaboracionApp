@@ -1,11 +1,10 @@
-package com.example.redcolaboracion.view
+package com.example.redcolaboracion.navigation
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -20,11 +19,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import com.example.redcolaboracion.view.EventScreen
+import com.example.redcolaboracion.view.GivedHelpScreen
+import com.example.redcolaboracion.view.ProfileScreen
+import com.example.redcolaboracion.view.RequestedHelpScreen
 import com.example.redcolaboracion.viewmodel.EventViewModel
-import com.example.redcolaboracion.viewmodel.LoginViewModel
+import com.example.redcolaboracion.viewmodel.ProfileViewModel
 
 @Composable
 fun HomeScreen(viewModel: EventViewModel) {
@@ -39,45 +39,65 @@ fun HomeScreen(viewModel: EventViewModel) {
 }
 
 @Composable
-fun MyRequestScreenN() {
-    var text by rememberSaveable { mutableStateOf("Hello") }
+fun RequestedHelpScreenL() {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxSize()
     ) {
-        Text("$text MyRequest Screen")
-        Button(onClick = { text = "Bye" }) {
-            Text("Change text")
-        }
+        RequestedHelpScreen()
     }
 }
-
 @Composable
-fun ProfileScreen(viewModel: LoginViewModel) {
+fun GivedHelpScreenL() {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxSize()
     ) {
-        LoginScreen(viewModel)
+        GivedHelpScreen()
+    }
+}
+@Composable
+fun HistoryScreenL() {
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+
     }
 }
 
 @Composable
-fun NavigationGraph(eventViewModel: EventViewModel, loginViewModel: LoginViewModel, navController: NavHostController) {
+fun ProfileScreenL(viewModel: ProfileViewModel) {
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        ProfileScreen(viewModel)
+    }
+}
+
+@Composable
+fun NavigationGraph(eventViewModel: EventViewModel, profileViewModel: ProfileViewModel, navController: NavHostController) {
     NavHost(navController = navController, startDestination = BottomNavItem.Home.route) {
         composable(BottomNavItem.Home.route) { HomeScreen(eventViewModel) }
-        composable(BottomNavItem.MyRequests.route) { CameraPreview(navController) }
-        composable(BottomNavItem.Profile.route) { ProfileScreen(loginViewModel) }
+        composable(BottomNavItem.RequestedHelp.route) { RequestedHelpScreenL() }
+        composable(BottomNavItem.GivedHelp.route) { GivedHelpScreenL() }
+        composable(BottomNavItem.History.route) { HistoryScreenL() }
+        composable(BottomNavItem.Profile.route) { ProfileScreenL(profileViewModel) }
     }
 }
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun MainScreen(eventViewModel: EventViewModel, loginViewModel: LoginViewModel) {
+fun MainScreen(eventViewModel: EventViewModel, loginViewModel: ProfileViewModel) {
     val navController = rememberNavController()
     Scaffold(
         bottomBar =  { BottomTabBar(navController = navController) }
@@ -90,7 +110,9 @@ fun MainScreen(eventViewModel: EventViewModel, loginViewModel: LoginViewModel) {
 fun BottomTabBar(navController: NavHostController) {
     val tabBarItems = listOf(
         BottomNavItem.Home,
-        BottomNavItem.MyRequests,
+        BottomNavItem.RequestedHelp,
+        BottomNavItem.GivedHelp,
+        BottomNavItem.History,
         BottomNavItem.Profile
     )
 
@@ -131,5 +153,5 @@ fun BottomTabBar(navController: NavHostController) {
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun PreviewMain() {
-    MainScreen(eventViewModel = EventViewModel(), loginViewModel = LoginViewModel())
+    MainScreen(eventViewModel = EventViewModel(), loginViewModel = ProfileViewModel())
 }

@@ -22,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavHostController
+import com.example.redcolaboracion.navigation.BottomNavItem
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import java.io.File
@@ -80,7 +81,7 @@ private fun takePicture(cameraController: LifecycleCameraController, executor: E
             cameraController.unbind()
             val uploadTask = photoRef.putFile(Uri.fromFile(file))
             uploadTask.addOnSuccessListener {
-                navHostController.navigate(BottomNavItem.MyRequests.route)
+                navHostController.navigate(BottomNavItem.Profile.route)
             }.addOnFailureListener { exception ->
                 println("Error al tomar foto")
             }

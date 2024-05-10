@@ -17,7 +17,7 @@ data class User(
     val address: String,
     val location: String
 )
-class LoginViewModel: ViewModel() {
+class ProfileViewModel: ViewModel() {
     var uiState = mutableStateOf(LoginUIState())
     val TAG = "LoginViewModel"
     private lateinit var auth: FirebaseAuth

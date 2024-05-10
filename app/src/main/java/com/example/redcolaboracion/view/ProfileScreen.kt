@@ -17,15 +17,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.redcolaboracion.viewmodel.LoginViewModel
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.dp
+import com.example.redcolaboracion.viewmodel.ProfileViewModel
 import com.example.redcolaboracion.viewmodel.User
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun LoginScreen(viewModel: LoginViewModel) {
+fun ProfileScreen(viewModel: ProfileViewModel) {
 
     var email by remember {
         mutableStateOf("")
@@ -119,7 +119,7 @@ fun LoginScreen(viewModel: LoginViewModel) {
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun UserScreen(viewModel: LoginViewModel) {
+fun UserScreen(viewModel: ProfileViewModel) {
 
     val uiState by viewModel.uiState
 
@@ -146,6 +146,6 @@ fun UserScreen(viewModel: LoginViewModel) {
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewLoginScreen() {
-    LoginScreen(viewModel = LoginViewModel())
+fun PreviewProfileScreen() {
+    ProfileScreen(viewModel = ProfileViewModel())
 }
