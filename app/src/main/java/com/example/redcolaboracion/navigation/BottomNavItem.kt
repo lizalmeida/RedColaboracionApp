@@ -31,13 +31,13 @@ sealed class BottomNavItem(
         route = "requested_help",
         unselectedIcon = Icons.Outlined.ThumbUp,
         selectedIcon = Icons.Filled.ThumbUp,
-        title = "PidoAyuda"
+        title = "Solicito"
     )
     data object GivedHelp: BottomNavItem(
         route = "gived_help",
         unselectedIcon = Icons.Outlined.FavoriteBorder,
         selectedIcon = Icons.Filled.Favorite,
-        title = "DoyAyuda"
+        title = "Ofrezco"
     )
     data object History: BottomNavItem(
         route = "history",
