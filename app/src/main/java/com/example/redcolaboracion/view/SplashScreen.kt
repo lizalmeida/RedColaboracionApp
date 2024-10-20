@@ -5,13 +5,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
-import com.example.redcolaboracion.navigation.AppScreens
 import com.example.redcolaboracion.navigation.MainScreen
-import com.example.redcolaboracion.viewmodel.EventViewModel
-import com.example.redcolaboracion.viewmodel.ProfileViewModel
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -35,6 +31,12 @@ fun Splash(){
         }
     }
 
+    val auth = FirebaseAuth.getInstance()
+    LaunchedEffect(Unit) {
+        auth.signOut()  // Forzar logout al entrar al login
+    }
+    println("Usuario en SplashScreen: " + auth.currentUser)
+
     if (isVisible) {
         Image(
             painter = rememberAsyncImagePainter(pathImage),
@@ -42,7 +44,7 @@ fun Splash(){
             modifier = Modifier.fillMaxSize()
         )
     } else {
-        MainScreen(eventViewModel = EventViewModel(), loginViewModel = ProfileViewModel())
+        MainScreen()
     }
 }
 @Preview(showBackground = true, showSystemUi = true)

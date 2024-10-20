@@ -95,6 +95,9 @@ dependencies {
     implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-storage")
+    implementation("com.google.firebase:firebase-appcheck")
+    implementation("com.google.firebase:firebase-appcheck-playintegrity")
+    //implementation("com.google.android.gms:play-services-integrity:18.0.0")
 
     implementation("com.google.android.material:material:1.11.0")
 

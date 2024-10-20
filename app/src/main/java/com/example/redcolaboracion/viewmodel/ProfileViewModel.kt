@@ -4,31 +4,44 @@ import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.example.redcolaboracion.model.LoginUIState
+import com.example.redcolaboracion.model.User
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
 
-data class User(
-    val name: String,
-    val lastname: String,
-    val imageUrl: String,
-    val phone: String,
-    val address: String,
-    val location: String
-)
 class ProfileViewModel: ViewModel() {
     var uiState = mutableStateOf(LoginUIState())
     val TAG = "LoginViewModel"
     private lateinit var auth: FirebaseAuth
 
-    fun registerUser(user: User, email: String, password: String) {
+    fun registerUser(
+        user: User,
+        email: String,
+        password: String,
+        onSuccess: () -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
         auth = Firebase.auth
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     val currentUser = auth.currentUser
-                    saveUser(currentUser?.uid ?: "no-id", user)
+                    //saveUser(currentUser?.uid ?: "no-id", user)
+                    val db = Firebase.firestore
+                    db.collection("users")
+                        .document(currentUser?.uid ?: "no-id")
+                        .set(user)
+                        .addOnSuccessListener {
+                            println("Usuario registrado con éxito.")
+                            onSuccess()
+                        }
+                        .addOnFailureListener { exception ->
+                            println("Error al registrar el usuario: $exception")
+                            onFailure(exception)
+                        }
+
                 } else {
                     Log.w(
                         TAG,
@@ -37,11 +50,6 @@ class ProfileViewModel: ViewModel() {
                     )
                 }
             }
-    }
-
-    private fun saveUser(userId: String, user: User) {
-        val db = Firebase.firestore
-        db.collection("users").document(userId).set(user)
     }
 
     fun readUser() {
@@ -75,5 +83,32 @@ class ProfileViewModel: ViewModel() {
                 Log.d(TAG, "$source data: null")
             }
         }
+    }
+
+    fun readLogin(
+        email: String,
+        password: String,
+        onLoginSuccess: (String?) -> Unit,
+        onLoginFailed: (String?) -> Unit
+    ) {
+        println(email + password)
+        auth = Firebase.auth
+        auth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val user: FirebaseUser? = auth.currentUser
+                    val uid = user?.uid
+                    onLoginSuccess(uid) // Return UID
+                    println("Usuario ingresa con éxito." + uid)
+                } else {
+                    // Handle sign-in failure
+                    val user: FirebaseUser? = auth.currentUser
+                    val uid = user?.uid
+                    println("Usuario ingresa pero con error." + uid)
+
+                    val error = task.exception?.localizedMessage ?: "Error desconocido"
+                    onLoginFailed(error)
+                }
+            }
     }
 }

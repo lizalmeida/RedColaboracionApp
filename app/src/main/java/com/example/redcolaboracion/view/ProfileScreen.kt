@@ -1,9 +1,11 @@
 package com.example.redcolaboracion.view
 
 import android.annotation.SuppressLint
+import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -19,9 +21,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.example.redcolaboracion.model.User
 import com.example.redcolaboracion.viewmodel.ProfileViewModel
-import com.example.redcolaboracion.viewmodel.User
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -51,6 +54,7 @@ fun ProfileScreen(viewModel: ProfileViewModel) {
     var location by remember {
         mutableStateOf("")
     }
+    val context = LocalContext.current
 
     Scaffold(
     ) {
@@ -105,13 +109,41 @@ fun ProfileScreen(viewModel: ProfileViewModel) {
             Spacer(modifier = Modifier.height(4.dp))
 
             Button(onClick = {
-                viewModel.registerUser(
-                    User(name, lastname, imageUrl, phone, address, location),
-                    email,
-                    password
-                )
-            }) {
-                Text("Registrar")
+                if (email.isNotBlank() && password.isNotBlank() && name.isNotBlank() && lastname.isNotBlank()) {
+                    viewModel.registerUser(
+                        User(name, lastname, imageUrl, phone, address, location),
+                        email,
+                        password,
+                        onSuccess = {
+                            println("Usuario registrado con éxito.")
+                            Toast.makeText(
+                                context,
+                                "Usuario registrado con éxito.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            //navigationController.navigate(BottomNavItem.History.route)
+                        },
+                        onFailure = { exception ->
+                            println("Error al registrar el usuario: $exception")
+                            Toast.makeText(
+                                context,
+                                "Error al registrar el usuario: ${exception.message}",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    )
+                } else {
+                    println("Por favor, completa todos los campos.")
+                    Toast.makeText(
+                        context,
+                        "Por favor, completa todos los campos.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Registrar Usuario")
             }
         }
     }

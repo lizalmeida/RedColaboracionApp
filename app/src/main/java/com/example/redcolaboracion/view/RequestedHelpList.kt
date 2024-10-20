@@ -1,6 +1,6 @@
 package com.example.redcolaboracion.view
 
-import android.widget.Toast
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,38 +12,24 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
-import com.example.redcolaboracion.model.Category
 import com.example.redcolaboracion.model.RequestedHelp
-import com.example.redcolaboracion.viewmodel.GivedHelpViewModel
 import com.example.redcolaboracion.viewmodel.RequestedHelpListViewModel
-import com.example.redcolaboracion.viewmodel.RequestedHelpViewModel
-import java.time.LocalDate
-import java.time.ZoneId
-import java.util.Date
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun GivedHelpScreen(viewModel: RequestedHelpListViewModel) {
+fun RequestedHelpList(viewModel: RequestedHelpListViewModel) {
     LaunchedEffect(Unit) {
         viewModel.readEvent(userId = "wlNqrN2IZCaQRAaryjQ5dSrx76H2")   //Lista mis solicitudes
     }
@@ -126,8 +112,8 @@ fun RequestedHelpRow(requestedHelp: RequestedHelp) {
         )
         Text(
             text = if (requestedHelp.priority.toInt() == 1) "Urgente"
-            else if (requestedHelp.priority.toInt() == 2) "1 Día"
-            else if (requestedHelp.priority.toInt() == 3) "1 Semana" else "",
+                   else if (requestedHelp.priority.toInt() == 2) "1 Día"
+                   else if (requestedHelp.priority.toInt() == 3) "1 Semana" else "",
             fontSize = 14.sp,
             color = if (requestedHelp.priority.toInt() == 1) Color.Red else Color.Black,
             modifier = Modifier
@@ -147,6 +133,6 @@ fun RequestedHelpRow(requestedHelp: RequestedHelp) {
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewGivedHelpList() {
-    GivedHelpList(viewModel = RequestedHelpListViewModel())
+fun PreviewRequestedHelpList() {
+    RequestedHelpList(viewModel = RequestedHelpListViewModel())
 }
