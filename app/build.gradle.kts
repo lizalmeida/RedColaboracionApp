@@ -107,4 +107,9 @@ dependencies {
     implementation ("androidx.camera:camera-lifecycle:1.3.2")
     implementation ("androidx.camera:camera-view:1.3.2")
     implementation ("com.google.accompanist:accompanist-permissions:0.34.0")
+
+    //calendar
+    implementation("com.maxkeppeler.sheets-compose-dialogs:core:1.2.0")
+    implementation("com.maxkeppeler.sheets-compose-dialogs:calendar:1.2.0")
+
 }

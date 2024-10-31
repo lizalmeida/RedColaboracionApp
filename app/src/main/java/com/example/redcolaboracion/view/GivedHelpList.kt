@@ -111,7 +111,7 @@ fun GivedHelpRow(givedHelp: RequestedHelp) {
                 .padding (horizontal = 2.dp)
         )
         Text(
-            text = givedHelp.requestedUser,
+            text = givedHelp.requestUser,
             fontSize = 14.sp,
             color = Color.Black,
             modifier = Modifier

@@ -2,26 +2,35 @@ package com.example.redcolaboracion.viewmodel
 
 import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.redcolaboracion.model.Category
+import com.example.redcolaboracion.model.LoginUIState
+import com.example.redcolaboracion.model.RequestedHelp
 import com.example.redcolaboracion.model.User
 import com.google.firebase.Firebase
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import retrofit2.http.Tag
+import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.util.Date
+import java.util.Locale
 
 class RequestedHelpViewModel: ViewModel() {
     val firestore: FirebaseFirestore = Firebase.firestore
     //var categories = mutableStateListOf<Category>()
     private val _categories = MutableStateFlow<List<Category>>(emptyList())
     val categories: StateFlow<List<Category>> = _categories
+    val TAG = "RequestedHelpViewModel"
+    var UIRequestedHelp = mutableStateOf(RequestedHelp())
 
     fun saveRequestHelp(
         requestMessage: String,

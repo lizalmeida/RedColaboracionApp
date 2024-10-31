@@ -1,6 +1,7 @@
 package com.example.redcolaboracion.model
 
 data class RequestedHelp (
+    var id: String = "",
     var requestMessage: String = "",
     var requestDate: String = "",
     var category: String = "",
@@ -8,5 +9,5 @@ data class RequestedHelp (
     var status: String = "",
     var efectiveHelp: String = "",
     var efectiveDate: String = "",
-    var requestedUser: String = ""
+    var requestUser: String = ""
 )

@@ -24,9 +24,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.redcolaboracion.viewmodel.EventViewModel
 import com.example.redcolaboracion.model.Event
+import com.example.redcolaboracion.ui.theme.Purple80
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -91,17 +93,20 @@ fun EventRow(event: Event) {
                 .size(100.dp)
         )
         Spacer(modifier = Modifier.weight(1f))
-        Column {
+        Column (
+            modifier = Modifier
+                .padding(4.dp)
+        ){
             Text(
                 text = event.title,
-                fontSize = 20.sp,
-                color = Color.Black,
+                fontSize = 16.sp,
+                color = Purple80,
                 modifier = Modifier
                     .padding(horizontal = 2.dp)
             )
             Text(
                 text = event.content,
-                fontSize = 16.sp,
+                fontSize = 14.sp,
                 color = Color.Black,
                 modifier = Modifier
                     .padding(horizontal = 2.dp)
@@ -109,13 +114,13 @@ fun EventRow(event: Event) {
             Row{
                 Text(
                     text = "Próxima reunión: ",
-                    fontSize = 16.sp,
+                    fontSize = 14.sp,
                     modifier = Modifier
                         .padding(horizontal = 2.dp)
                 )
                 Text(
                     text = event.date,
-                    fontSize = 16.sp,
+                    fontSize = 14.sp,
                     color = Color.Black
                 )
             }

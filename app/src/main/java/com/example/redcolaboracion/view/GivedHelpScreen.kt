@@ -1,7 +1,9 @@
 package com.example.redcolaboracion.view
 
+import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -29,12 +31,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.redcolaboracion.model.Category
 import com.example.redcolaboracion.model.RequestedHelp
+import com.example.redcolaboracion.navigation.BottomNavItem
 import com.example.redcolaboracion.viewmodel.GivedHelpViewModel
 import com.example.redcolaboracion.viewmodel.RequestedHelpListViewModel
 import com.example.redcolaboracion.viewmodel.RequestedHelpViewModel
@@ -42,8 +49,11 @@ import java.time.LocalDate
 import java.time.ZoneId
 import java.util.Date
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun GivedHelpScreen(viewModel: RequestedHelpListViewModel) {
+fun GivedHelpScreen(viewModel: RequestedHelpListViewModel, navController: NavController) {
+    val requestedHelps = viewModel.uiRequestedHelpList
+
     LaunchedEffect(Unit) {
         viewModel.readEvent(userId = "wlNqrN2IZCaQRAaryjQ5dSrx76H2")   //Lista mis solicitudes
     }
@@ -52,38 +62,16 @@ fun GivedHelpScreen(viewModel: RequestedHelpListViewModel) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(8.dp)
+                .padding(16.dp)
         ) {
-            Row(){
-                Text(text = "",
-                    modifier = Modifier.width(30.dp)
-                )
-                Text(text = "Categoría",
-                    modifier = Modifier
-                        .width(120.dp)
-                        .padding (horizontal = 2.dp)
-                )
-                //Spacer(modifier = Modifier.weight(1f))
-                Text(text = "Prioridad",
-                    modifier = Modifier
-                        .padding (horizontal = 2.dp)
-                        .weight(1f)
-                )
-                Text(text = "Estado",
-                    modifier = Modifier
-                        .padding (horizontal = 2.dp)
-                        .weight(1f)
-                )
-            }
-            Spacer(modifier = Modifier.height(2.dp))
-            Divider()
-            // Mostrar la lista de ayudas
-            LazyColumn (
+            LazyColumn(
                 modifier = Modifier.weight(1f)
             ) {
-                items(viewModel.uiRequestedHelpList.size) { currentRequestedHelp ->
-                    val requestedHelp = viewModel.uiRequestedHelpList[currentRequestedHelp]
-                    RequestedHelpRow(requestedHelp)
+                items(requestedHelps.size) { currentRequestedHelp ->
+                    val requestedHelp = requestedHelps[currentRequestedHelp]
+                    RequestedHelpRowG(requestedHelp) { requestedHelpId ->
+                        navController.navigate("${BottomNavItem.GivedHelp.route}/$requestedHelpId")
+                    }
                     Divider()
                 }
             }
@@ -92,61 +80,99 @@ fun GivedHelpScreen(viewModel: RequestedHelpListViewModel) {
 }
 
 @Composable
-fun RequestedHelpRow(requestedHelp: RequestedHelp) {
+fun RequestedHelpRowG(requestedHelp: RequestedHelp, onClick:(String) -> Unit) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
+            .clickable { onClick(requestedHelp.id) }
     ) {
-        if ( requestedHelp.efectiveHelp.toBoolean()) {
-            Image(
-                painter = rememberAsyncImagePainter("https://firebasestorage.googleapis.com/v0/b/redcolaboracion-7d500.appspot.com/o/images%2Fcheck.png?alt=media&token=35c8dc77-7bae-46df-9b0d-d01a1f1a7343"),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(30.dp)
-                    .padding(horizontal = 2.dp)
-            )
-        } else {
-            Image(
-                painter = rememberAsyncImagePainter("https://firebasestorage.googleapis.com/v0/b/redcolaboracion-7d500.appspot.com/o/images%2Fcross.png?alt=media&token=02c50774-f140-461f-8a01-2e20968a9d62"),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(30.dp)
-                    .padding(horizontal = 2.dp)
-            )
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+        ) {
+            Row() {
+                Text(
+                    text = "Id:",
+                    modifier = Modifier
+                        .padding(2.dp),
+                    textAlign = TextAlign.Center
+                )
+                Text(
+                    text = requestedHelp.id,
+                    fontSize = 14.sp,
+                    color = Color.Black,
+                    modifier = Modifier
+                        .padding(horizontal = 2.dp)
+                )
+            }
+            Row() {
+                Text(
+                    text = "Categoría:",
+                    modifier = Modifier
+                        .padding(2.dp),
+                    textAlign = TextAlign.Center
+                )
+                Text(
+                    text = requestedHelp.category,
+                    fontSize = 14.sp,
+                    color = Color.Black,
+                    modifier = Modifier
+                        .padding(horizontal = 2.dp)
+                )
+            }
+            Row() {
+                Text(
+                    text = "Solicitante:",
+                    modifier = Modifier
+                        .padding(2.dp),
+                    textAlign = TextAlign.Center
+                )
+            }
+            Row() {
+                Text(
+                    text = "Fecha:",
+                    modifier = Modifier
+                        .padding(2.dp),
+                    textAlign = TextAlign.Center
+                )
+            }
+            Row() {
+                Text(
+                    text = "Prioridad:",
+                    modifier = Modifier
+                        .padding(2.dp),
+                    textAlign = TextAlign.Center
+                )
+                Text(
+                    text = if (requestedHelp.priority.toInt() == 1) "Urgente"
+                    else if (requestedHelp.priority.toInt() == 2) "1 Día"
+                    else if (requestedHelp.priority.toInt() == 3) "1 Semana" else "",
+                    fontSize = 14.sp,
+                    color = if (requestedHelp.priority.toInt() == 1) Color.Red else Color.Black,
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 2.dp)
+                )
+            }
         }
-        Text(
-            text = requestedHelp.category,
-            fontSize = 14.sp,
-            color = Color.Black,
+/*        Column(
             modifier = Modifier
-                .width(120.dp)
-                .padding (horizontal = 2.dp)
-        )
-        Text(
-            text = if (requestedHelp.priority.toInt() == 1) "Urgente"
-            else if (requestedHelp.priority.toInt() == 2) "1 Día"
-            else if (requestedHelp.priority.toInt() == 3) "1 Semana" else "",
-            fontSize = 14.sp,
-            color = if (requestedHelp.priority.toInt() == 1) Color.Red else Color.Black,
-            modifier = Modifier
-                .weight(1f)
-                .padding(horizontal = 2.dp)
-        )
-        Text(
-            text = requestedHelp.status,
-            fontSize = 14.sp,
-            color = Color.Black,
-            modifier = Modifier
-                .weight(1f)
-                .padding(horizontal = 2.dp)
-        )
+            .weight(1f)
+        ){
+            Text(text = "RESPONDER",
+                modifier = Modifier
+                    .padding(8.dp),
+                textAlign = TextAlign.Center
+            )
+        } */
     }
+    Divider()
 }
-
+/*
 @Preview(showBackground = true)
 @Composable
-fun PreviewGivedHelpList() {
-    GivedHelpList(viewModel = RequestedHelpListViewModel())
-}
+fun PreviewGivedHelpScreen() {
+    GivedHelpScreen(viewModel = RequestedHelpListViewModel())
+} */

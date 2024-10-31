@@ -38,6 +38,7 @@ class RequestedHelpListViewModel: ViewModel() {
 
             uiRequestedHelpList.clear()
             for (doc in documents) {
+                val doc_id = doc.id
                 val doc_requestmessage = doc["message"].toString()
                 val doc_requestdate_stamp: Timestamp = doc["requestDate"] as Timestamp
                 val doc_requestdate = formato.format(doc_requestdate_stamp.toDate()).toString()
@@ -48,6 +49,7 @@ class RequestedHelpListViewModel: ViewModel() {
                 val doc_efectiveDate_stamp: Timestamp = doc["efectiveDate"] as Timestamp
                 val doc_efectiveDate = formato.format(doc_efectiveDate_stamp.toDate()).toString()
                 val RequestedHelp1 = RequestedHelp(
+                    id = doc_id,
                     requestMessage = doc_requestmessage,
                     requestDate = doc_requestdate,
                     category = doc_category,

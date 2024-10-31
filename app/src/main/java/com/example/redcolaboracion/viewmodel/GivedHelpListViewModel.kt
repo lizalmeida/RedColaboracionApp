@@ -55,7 +55,7 @@ class GivedHelpListViewModel: ViewModel() {
                                     status = doc_status,
                                     efectiveHelp = doc_efectiveHelp,
                                     efectiveDate = doc_efectiveDate,
-                                    requestedUser = doc_requestedUser
+                                    requestUser = doc_requestedUser
                                 )
                                 uiGivedHelpList.add(RequestedHelp1)
                             }

@@ -5,13 +5,20 @@ import android.os.Build
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
@@ -27,14 +34,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import com.example.redcolaboracion.view.CameraPreview
 import com.example.redcolaboracion.view.EventScreen
 import com.example.redcolaboracion.view.GivedHelpScreen
+import com.example.redcolaboracion.view.GivedHelpScreenStep2
 import com.example.redcolaboracion.view.HistoryScreen
 import com.example.redcolaboracion.view.LoginScreen
 import com.example.redcolaboracion.view.ProfileScreen
 import com.example.redcolaboracion.view.RequestedHelpScreen
 import com.example.redcolaboracion.viewmodel.EventViewModel
 import com.example.redcolaboracion.viewmodel.ProfileViewModel
+import com.example.redcolaboracion.viewmodel.RequestedHelpListViewModel
 import com.example.redcolaboracion.viewmodel.RequestedHelpViewModel
 import com.google.firebase.auth.FirebaseAuth
 
@@ -119,13 +130,26 @@ fun NavigationGraph(
     pendingRoute: MutableState<String?>
 ) {
     val context = LocalContext.current
-    val auth = FirebaseAuth.getInstance()
+    val requestedHelpId = "requestedHelpId"
     NavHost(navController = navController, startDestination = BottomNavItem.Home.route) {
         composable(BottomNavItem.Home.route) { HomeScreen() }
-        composable(BottomNavItem.RequestedHelp.route) { RequestedHelpScreenL() }
-        composable(BottomNavItem.GivedHelp.route) { GivedHelpScreenL() }
+        composable(BottomNavItem.RequestedHelp.route) { RequestedHelpScreenL(navController) }
+        composable(BottomNavItem.GivedHelp.route) { GivedHelpScreenL(navController) }
+
+        composable("${BottomNavItem.GivedHelp.route}/{$requestedHelpId}") {backStackEntry ->
+            GivedHelpScreenStep2(
+                requestedHelpId = backStackEntry.arguments?.getString(requestedHelpId) ?: "missing requestHelpId",
+                navController
+            )
+/*            DetailScreen(
+                requestedHelpId = backStackEntry.arguments?.getString(requestedHelpId) ?: "missing requestHelpId",
+                navController
+            )  */
+        }
+
         composable(BottomNavItem.History.route) { HistoryScreenL() }
-        composable(BottomNavItem.Profile.route) { ProfileScreenL() }
+        composable(BottomNavItem.Profile.route) { ProfileScreenL(navController) }
+        composable("camera") { CameraPreview(navController) }
         composable("login") {
             LoginScreen(
                 onLoginSuccess = {
@@ -162,7 +186,7 @@ fun HomeScreen() {
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun RequestedHelpScreenL() {
+fun RequestedHelpScreenL(navController: NavController) {
     val requestedHelpViewModel: RequestedHelpViewModel = viewModel()
     Column(
         verticalArrangement = Arrangement.Center,
@@ -170,21 +194,48 @@ fun RequestedHelpScreenL() {
         modifier = Modifier
             .fillMaxSize()
     ) {
-        RequestedHelpScreen(requestedHelpViewModel)
+        RequestedHelpScreen(requestedHelpViewModel, navController)
     }
 }
 
 @Composable
-fun GivedHelpScreenL() {
+fun GivedHelpScreenL(navController: NavController) {
+    val requestedHelpListViewModel: RequestedHelpListViewModel = viewModel()
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxSize()
     ) {
-        GivedHelpScreen()
+        GivedHelpScreen(requestedHelpListViewModel, navController)
     }
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DetailScreen(requestedHelpId: String, navController: NavHostController) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(text = requestedHelpId) },
+                navigationIcon = {
+                    IconButton(onClick = {
+                        navController.navigateUp()
+                    }) {
+                        Icon(imageVector = Icons.Outlined.ArrowBack, contentDescription = null)
+                    }
+                }
+            )
+        }
+    ) { innerPaddings ->
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .padding(innerPaddings)
+        )
+
+    }
+}
+
 @Composable
 fun HistoryScreenL() {
     Column(
@@ -198,7 +249,7 @@ fun HistoryScreenL() {
 }
 
 @Composable
-fun ProfileScreenL() {
+fun ProfileScreenL(navController: NavHostController) {
     val profileViewModel: ProfileViewModel = viewModel()
     Column(
         verticalArrangement = Arrangement.Center,
@@ -206,7 +257,7 @@ fun ProfileScreenL() {
         modifier = Modifier
             .fillMaxSize()
     ) {
-        ProfileScreen(profileViewModel)
+        ProfileScreen(profileViewModel, navController)
     }
 }
 

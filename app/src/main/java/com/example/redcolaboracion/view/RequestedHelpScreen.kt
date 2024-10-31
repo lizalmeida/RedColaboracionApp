@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
@@ -41,7 +42,7 @@ import java.util.Date
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun RequestedHelpScreen(viewModel: RequestedHelpViewModel) {
+fun RequestedHelpScreen(viewModel: RequestedHelpViewModel, navController: NavController) {
     val categories by viewModel.categories.collectAsState()
     LaunchedEffect(Unit) {
         viewModel.fetchCategories()
@@ -103,7 +104,7 @@ fun RequestedHelpScreen(viewModel: RequestedHelpViewModel) {
             TextField(
                 value = requestMessage,
                 onValueChange = {requestMessage = it},
-                label = { Text(text = "Detalle:") }
+                shape = RoundedCornerShape(12.dp)
             )
 
             Spacer(modifier = Modifier.height(10.dp))
