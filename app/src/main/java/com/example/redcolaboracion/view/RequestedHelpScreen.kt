@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.example.redcolaboracion.model.Category
+import com.example.redcolaboracion.navigation.TopMenu
 import com.example.redcolaboracion.viewmodel.RequestedHelpViewModel
 import java.time.LocalDate
 import java.time.ZoneId
@@ -69,10 +70,15 @@ fun RequestedHelpScreen(viewModel: RequestedHelpViewModel, navController: NavCon
     val context = LocalContext.current
 
     Scaffold {
+        TopMenu(
+            title = "Solicitar Ayuda",
+            navController = navController
+        )
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp)
+                .padding(vertical = 40.dp)
         ){
             Text(
                 text = "Escoge la categoría de ayuda que necesitas:",

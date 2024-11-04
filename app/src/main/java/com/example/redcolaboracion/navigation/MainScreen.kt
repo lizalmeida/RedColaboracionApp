@@ -32,6 +32,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -131,6 +132,8 @@ fun NavigationGraph(
 ) {
     val context = LocalContext.current
     val requestedHelpId = "requestedHelpId"
+    var userId by remember { mutableStateOf("") }
+
     NavHost(navController = navController, startDestination = BottomNavItem.Home.route) {
         composable(BottomNavItem.Home.route) { HomeScreen() }
         composable(BottomNavItem.RequestedHelp.route) { RequestedHelpScreenL(navController) }
@@ -147,12 +150,13 @@ fun NavigationGraph(
             )  */
         }
 
-        composable(BottomNavItem.History.route) { HistoryScreenL() }
+        composable(BottomNavItem.History.route) { HistoryScreenL(navController) }
         composable(BottomNavItem.Profile.route) { ProfileScreenL(navController) }
         composable("camera") { CameraPreview(navController) }
         composable("login") {
             LoginScreen(
-                onLoginSuccess = {
+                onLoginSuccess = {uid ->
+                    userId = uid.toString()
                     isAuthenticated.value = true
                     pendingRoute.value?.let { navController.navigate(it) }
                     pendingRoute.value = null
@@ -237,14 +241,14 @@ fun DetailScreen(requestedHelpId: String, navController: NavHostController) {
 }
 
 @Composable
-fun HistoryScreenL() {
+fun HistoryScreenL(navController: NavHostController) {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .fillMaxSize()
     ) {
-        HistoryScreen()
+        HistoryScreen(navController)
     }
 }
 

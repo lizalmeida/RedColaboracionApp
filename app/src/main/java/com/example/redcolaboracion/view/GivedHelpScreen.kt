@@ -42,6 +42,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.example.redcolaboracion.model.Category
 import com.example.redcolaboracion.model.RequestedHelp
 import com.example.redcolaboracion.navigation.BottomNavItem
+import com.example.redcolaboracion.navigation.TopMenu
 import com.example.redcolaboracion.viewmodel.GivedHelpViewModel
 import com.example.redcolaboracion.viewmodel.RequestedHelpListViewModel
 import com.example.redcolaboracion.viewmodel.RequestedHelpViewModel
@@ -59,10 +60,15 @@ fun GivedHelpScreen(viewModel: RequestedHelpListViewModel, navController: NavCon
     }
 
     Scaffold() {
+        TopMenu(
+            title = "Requerimientos de Ayudas",
+            navController = navController
+        )
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp)
+                .padding(vertical = 40.dp)
         ) {
             LazyColumn(
                 modifier = Modifier.weight(1f)

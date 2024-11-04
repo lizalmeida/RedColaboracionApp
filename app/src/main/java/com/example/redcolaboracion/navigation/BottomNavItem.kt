@@ -34,7 +34,7 @@ sealed class BottomNavItem(
         unselectedIcon = Icons.Outlined.ThumbUp,
         selectedIcon = Icons.Filled.ThumbUp,
         title = "Solicito",
-        authentication = false
+        authentication = true
     )
     data object GivedHelp: BottomNavItem(
         route = "gived_help",

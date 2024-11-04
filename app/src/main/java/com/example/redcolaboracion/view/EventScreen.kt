@@ -28,6 +28,7 @@ import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.redcolaboracion.viewmodel.EventViewModel
 import com.example.redcolaboracion.model.Event
+import com.example.redcolaboracion.ui.theme.Purple40
 import com.example.redcolaboracion.ui.theme.Purple80
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -100,7 +101,7 @@ fun EventRow(event: Event) {
             Text(
                 text = event.title,
                 fontSize = 16.sp,
-                color = Purple80,
+                color = Purple40,
                 modifier = Modifier
                     .padding(horizontal = 2.dp)
             )

@@ -41,6 +41,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.redcolaboracion.model.User
+import com.example.redcolaboracion.navigation.TopMenu
 import com.example.redcolaboracion.viewmodel.ProfileViewModel
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
@@ -92,11 +93,16 @@ fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController) {
 
     Scaffold(
     ) {
+        TopMenu(
+            title = "Historial de Ayudas",
+            navController = navController
+        )
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp)
+                .padding(vertical = 40.dp)
         ) {
             Box(
                 contentAlignment = Alignment.Center,

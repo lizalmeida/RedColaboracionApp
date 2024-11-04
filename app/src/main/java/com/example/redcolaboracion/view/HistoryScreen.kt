@@ -28,28 +28,26 @@ import com.example.redcolaboracion.viewmodel.HistoryViewModel
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import com.example.redcolaboracion.navigation.TopMenu
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun HistoryScreen() {
+fun HistoryScreen(navController: NavController) {
     var selectedOption by remember { mutableStateOf("Solicitudes") }
 
     Scaffold() {
+        TopMenu(
+            title = "Historial de Ayudas",
+            navController = navController
+        )
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp)
+                .padding(vertical = 40.dp)
         ) {
-            Row(){
-                Text(text = "HISTORIAL DE AYUDAS",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp),
-                    textAlign = TextAlign.Center
-                )
-            }
-            Spacer(modifier = Modifier.height(2.dp))
             //Filtro de tipo de ayuda (requested or gived)
             Column(
                 modifier =Modifier
@@ -83,10 +81,10 @@ fun HistoryScreen() {
         }
     }
 }
-
+/*
 @Preview(showBackground = true)
 @Composable
 fun PreviewHistoryScreen() {
     HistoryScreen()
-}
+}*/
 
