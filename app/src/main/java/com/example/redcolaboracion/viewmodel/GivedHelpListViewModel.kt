@@ -3,6 +3,7 @@ package com.example.redcolaboracion.viewmodel
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import com.example.redcolaboracion.model.RequestedHelp
+import com.example.redcolaboracion.model.UserSession
 import com.google.firebase.Firebase
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.firestore
@@ -18,7 +19,7 @@ class GivedHelpListViewModel: ViewModel() {
         val formato = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
         db.collection("givedHelp")
-            .whereEqualTo("uidUser", "KhpDvVx0RRZLU5UEeJ487CjUDJ43")
+            .whereEqualTo("uidUser", UserSession.userId)
             .get()
             .addOnSuccessListener { result ->
             val source = if (result != null && result.metadata.hasPendingWrites()) {

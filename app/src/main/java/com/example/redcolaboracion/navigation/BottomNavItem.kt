@@ -41,14 +41,14 @@ sealed class BottomNavItem(
         unselectedIcon = Icons.Outlined.FavoriteBorder,
         selectedIcon = Icons.Filled.Favorite,
         title = "Ofrezco",
-        authentication = false
+        authentication = true
     )
     data object History: BottomNavItem(
         route = "history",
         unselectedIcon = Icons.Outlined.List,
         selectedIcon = Icons.Filled.List,
         title = "Historial",
-        authentication = false
+        authentication = true
     )
 
     data object Profile: BottomNavItem(

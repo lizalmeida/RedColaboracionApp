@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.example.redcolaboracion.model.Category
+import com.example.redcolaboracion.model.UserSession
 import com.example.redcolaboracion.navigation.TopMenu
 import com.example.redcolaboracion.viewmodel.RequestedHelpViewModel
 import java.time.LocalDate
@@ -159,7 +160,7 @@ fun RequestedHelpScreen(viewModel: RequestedHelpViewModel, navController: NavCon
                             status = "Solicitada",
                             efectiveHelp = false,
                             efectiveDate = efectiveDate,
-                            userId = "wlNqrN2IZCaQRAaryjQ5dSrx76H2",
+                            userId = UserSession.userId.toString(),
                             onSuccess = {
                                 println("Solicitud de ayuda guardada con éxito.")
                                 Toast.makeText(

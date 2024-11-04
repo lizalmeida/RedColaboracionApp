@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.redcolaboracion.model.UserSession
 import com.example.redcolaboracion.navigation.BottomNavItem
 import com.example.redcolaboracion.navigation.TopMenu
 import com.example.redcolaboracion.viewmodel.GivedHelpViewModel
@@ -179,7 +180,7 @@ fun GivedHelpScreenStep2(requestedHelpId: String, navController: NavController) 
                             comments = comments,
                             offeredDate = offeredDate,
                             givedDate = offeredDate,
-                            uidUser = uiRequestedHelp.requestUser,
+                            uidUser = UserSession.userId.toString(),
                             onSuccess = {
                                 println("Ayuda ofrecida guardada con éxito.")
                                 Toast.makeText(

@@ -25,13 +25,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.example.redcolaboracion.model.RequestedHelp
+import com.example.redcolaboracion.model.UserSession
 import com.example.redcolaboracion.viewmodel.RequestedHelpListViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun RequestedHelpList(viewModel: RequestedHelpListViewModel) {
     LaunchedEffect(Unit) {
-        viewModel.readEvent(userId = "wlNqrN2IZCaQRAaryjQ5dSrx76H2")   //Lista mis solicitudes
+        viewModel.readEvent(userId = UserSession.userId)   //Lista mis solicitudes
     }
 
     Scaffold() {

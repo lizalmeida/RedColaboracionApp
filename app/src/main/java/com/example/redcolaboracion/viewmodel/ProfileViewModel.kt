@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.example.redcolaboracion.model.LoginUIState
 import com.example.redcolaboracion.model.User
+import com.example.redcolaboracion.model.UserSession
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -99,6 +100,7 @@ class ProfileViewModel: ViewModel() {
                     val user: FirebaseUser? = auth.currentUser
                     val uid = user?.uid
                     onLoginSuccess(uid) // Return UID
+                    UserSession.userId = uid
                     println("Usuario ingresa con éxito." + uid)
                 } else {
                     // Handle sign-in failure

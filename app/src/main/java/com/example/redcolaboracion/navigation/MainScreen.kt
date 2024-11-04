@@ -133,6 +133,7 @@ fun NavigationGraph(
     val context = LocalContext.current
     val requestedHelpId = "requestedHelpId"
     var userId by remember { mutableStateOf("") }
+    var errorMessage by remember { mutableStateOf("") }
 
     NavHost(navController = navController, startDestination = BottomNavItem.Home.route) {
         composable(BottomNavItem.Home.route) { HomeScreen() }
@@ -162,7 +163,8 @@ fun NavigationGraph(
                     pendingRoute.value = null
                     navController.popBackStack("login", inclusive = true)
                 },
-                onLoginFailed = {
+                onLoginFailed = {error ->
+                    errorMessage = error.toString()
                     println("Error en el usuario o contraseña.")
                     Toast.makeText(
                         context,

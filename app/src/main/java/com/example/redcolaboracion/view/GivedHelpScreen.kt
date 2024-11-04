@@ -41,6 +41,7 @@ import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.redcolaboracion.model.Category
 import com.example.redcolaboracion.model.RequestedHelp
+import com.example.redcolaboracion.model.UserSession
 import com.example.redcolaboracion.navigation.BottomNavItem
 import com.example.redcolaboracion.navigation.TopMenu
 import com.example.redcolaboracion.viewmodel.GivedHelpViewModel
@@ -56,7 +57,7 @@ fun GivedHelpScreen(viewModel: RequestedHelpListViewModel, navController: NavCon
     val requestedHelps = viewModel.uiRequestedHelpList
 
     LaunchedEffect(Unit) {
-        viewModel.readEvent(userId = "wlNqrN2IZCaQRAaryjQ5dSrx76H2")   //Lista mis solicitudes
+        viewModel.readEvent(category = "Víveres") //CORREGIR: categorias configuradas
     }
 
     Scaffold() {
