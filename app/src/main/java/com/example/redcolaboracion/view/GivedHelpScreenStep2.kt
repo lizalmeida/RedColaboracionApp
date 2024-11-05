@@ -174,29 +174,31 @@ fun GivedHelpScreenStep2(requestedHelpId: String, navController: NavController) 
 
             Button(
                 onClick = {
-                    offeredDate?.let {
-                        givedHelpViewModel.saveGivedHelp(
-                            uidRequestedHelp = requestedHelpId,
-                            comments = comments,
-                            offeredDate = offeredDate,
-                            givedDate = offeredDate,
-                            uidUser = UserSession.userId.toString(),
-                            onSuccess = {
-                                println("Ayuda ofrecida guardada con éxito.")
+                    if (comments.isNotBlank() && fieldDate.isNotBlank()) {
+                        offeredDate?.let {
+                            givedHelpViewModel.saveGivedHelp(
+                                uidRequestedHelp = requestedHelpId,
+                                comments = comments,
+                                offeredDate = offeredDate,
+                                givedDate = offeredDate,
+                                uidUser = UserSession.userId.toString(),
+                                onSuccess = {
+                                    println("Ayuda ofrecida guardada con éxito.")
+                                    Toast.makeText(
+                                        context,
+                                        "Ayuda ofrecida guardada con éxito.",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    navController.navigate(BottomNavItem.History.route)
+                                }
+                            ) { exception ->
+                                println("Error al enviar ayuda ofrecida: $exception")
                                 Toast.makeText(
                                     context,
-                                    "Ayuda ofrecida guardada con éxito.",
-                                    Toast.LENGTH_SHORT
+                                    "Error al enviar ayuda ofrecida: ${exception.message}",
+                                    Toast.LENGTH_LONG
                                 ).show()
-                                navController.navigate(BottomNavItem.History.route)
                             }
-                        ) { exception ->
-                            println("Error al enviar ayuda ofrecida: $exception")
-                            Toast.makeText(
-                                context,
-                                "Error al enviar ayuda ofrecida: ${exception.message}",
-                                Toast.LENGTH_LONG
-                            ).show()
                         }
                     }
                 },

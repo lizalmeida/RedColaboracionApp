@@ -136,6 +136,13 @@ fun RequestedHelpRowG(requestedHelp: RequestedHelp, onClick:(String) -> Unit) {
                         .padding(2.dp),
                     textAlign = TextAlign.Center
                 )
+                Text(
+                    text = requestedHelp.requestUser,
+                    fontSize = 14.sp,
+                    color = Color.Black,
+                    modifier = Modifier
+                        .padding(horizontal = 2.dp)
+                )
             }
             Row() {
                 Text(
@@ -143,6 +150,13 @@ fun RequestedHelpRowG(requestedHelp: RequestedHelp, onClick:(String) -> Unit) {
                     modifier = Modifier
                         .padding(2.dp),
                     textAlign = TextAlign.Center
+                )
+                Text(
+                    text = requestedHelp.requestDate,
+                    fontSize = 14.sp,
+                    color = Color.Black,
+                    modifier = Modifier
+                        .padding(horizontal = 2.dp)
                 )
             }
             Row() {

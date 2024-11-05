@@ -31,11 +31,14 @@ class GivedHelpListViewModel: ViewModel() {
             uiGivedHelpList.clear()
             for (doc in result) {
                 val doc_uidRequestedHelp = doc["uidRequestedHelp"].toString()
+                println("Id de la ayuda que se realiza: $doc_uidRequestedHelp")
 
                 db.collection("requestedHelp").document(doc_uidRequestedHelp).get()
                     .addOnSuccessListener { requestedDoc ->
 
-                        val doc_uidUser = requestedDoc["uidUser"].toString()
+                        val doc_uidUser = requestedDoc["userId"].toString()
+                        println("Usuario al que se da la ayuda: $doc_uidUser")
+
                         db.collection("users").document(doc_uidUser).get()
                             .addOnSuccessListener { userDoc ->
                                 val doc_requestedUser = userDoc["name"].toString() + " " + userDoc["lastname"].toString()

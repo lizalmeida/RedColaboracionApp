@@ -44,6 +44,17 @@ class GivedHelpViewModel: ViewModel() {
                 .addOnSuccessListener {
                     println("Ayuda guardada con éxito. Gracias por su colaboración!")
                     onSuccess()
+
+                    updateRequestHelp(uidRequestedHelp,
+                        onSuccess = {
+                            println("RequestHelp actualizado con éxito.")
+                            onSuccess() // Llamada de éxito después de actualizar
+                        },
+                        onFailure = { exception ->
+                            println("Error al actualizar RequestHelp: $exception")
+                            onFailure(exception) // Llamada de fallo en caso de error
+                        }
+                    )
                 }
                 .addOnFailureListener { exception ->
                     println("Error al guardar la repuesta: $exception")
@@ -105,6 +116,30 @@ class GivedHelpViewModel: ViewModel() {
             } else {
                 Log.d(TAG, "$source data: null")
             }
+        }
+    }
+
+    fun updateRequestHelp(
+        uidRequestedHelp: String,
+        onSuccess: () -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        viewModelScope.launch {
+            val data = mapOf(
+                "status" to "En curso"
+            )
+
+            firestore.collection("requestedHelp")
+                .document(uidRequestedHelp)
+                .update(data)
+                .addOnSuccessListener {
+                    println("Solicitud de ayuda actualizada a En curso")
+                    onSuccess()
+                }
+                .addOnFailureListener { exception ->
+                    println("Error al actualizar el estado de la solicitud de ayuda: $exception")
+                    onFailure(exception)
+                }
         }
     }
 }

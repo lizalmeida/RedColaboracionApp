@@ -35,6 +35,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.example.redcolaboracion.model.Category
 import com.example.redcolaboracion.model.UserSession
+import com.example.redcolaboracion.navigation.BottomNavItem
 import com.example.redcolaboracion.navigation.TopMenu
 import com.example.redcolaboracion.viewmodel.RequestedHelpViewModel
 import java.time.LocalDate
@@ -151,7 +152,7 @@ fun RequestedHelpScreen(viewModel: RequestedHelpViewModel, navController: NavCon
             // Botón de envío
             Button(
                 onClick = {
-                    if (selectedCategory != null && requestMessage.isNotBlank()) {
+                    if (selectedCategory != null && selectedPriority != null && requestMessage.isNotBlank()) {
                         viewModel.saveRequestHelp(
                             requestMessage = requestMessage,
                             requestDate = currentDateAndTime,
@@ -168,7 +169,7 @@ fun RequestedHelpScreen(viewModel: RequestedHelpViewModel, navController: NavCon
                                     "Solicitud de ayuda guardada con éxito.",
                                     Toast.LENGTH_SHORT
                                 ).show()
-                                //navigationController.navigate(BottomNavItem.History.route)
+                                navController.navigate(BottomNavItem.History.route)
                             },
                             onFailure = { exception ->
                                 println("Error al enviar solicitud de ayuda: $exception")

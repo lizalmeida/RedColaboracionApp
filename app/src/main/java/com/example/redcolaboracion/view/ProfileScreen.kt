@@ -11,12 +11,14 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -36,11 +38,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.redcolaboracion.model.User
+import com.example.redcolaboracion.model.UserSession
+import com.example.redcolaboracion.navigation.BottomNavItem
 import com.example.redcolaboracion.navigation.TopMenu
 import com.example.redcolaboracion.viewmodel.ProfileViewModel
 import com.google.firebase.storage.FirebaseStorage
@@ -50,31 +56,17 @@ import kotlinx.coroutines.tasks.await
 @Composable
 fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController) {
 
-    var email by remember {
-        mutableStateOf("")
-    }
-    var password by remember {
-        mutableStateOf("")
-    }
-    var name by remember {
-        mutableStateOf("")
-    }
-    var lastname by remember {
-        mutableStateOf("")
-    }
-    var phone by remember {
-        mutableStateOf("")
-    }
-    var address by remember {
-        mutableStateOf("")
-    }
-    var location by remember {
-        mutableStateOf("")
-    }
-    val context = LocalContext.current
-
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var name by remember { mutableStateOf("") }
+    var lastname by remember { mutableStateOf("") }
+    var phone by remember { mutableStateOf("") }
+    var address by remember { mutableStateOf("") }
+    var location by remember { mutableStateOf("") }
     var imageUri by remember { mutableStateOf<Uri?>(null) }
     var imageUrl by remember { mutableStateOf<String?>(null) }
+    val context = LocalContext.current
+    var isLogged = UserSession.userId != null
 
     // Llamador de la cámara
     val cameraLauncher = rememberLauncherForActivityResult(
@@ -86,15 +78,28 @@ fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController) {
         }
     }
 
-    // Cargar la imagen desde Firebase cuando el Composable se inicie
+    val uiState by viewModel.uiState
+    LaunchedEffect(uiState) {
+        uiState?.let { user ->
+            email = user.email
+            name = user.name
+            lastname = user.lastname
+            imageUrl = user.imageUrl
+            phone = user.phone
+            address = user.address
+            location = user.location
+            // También puedes cargar el email si está disponible en el estado del usuario.
+        }
+    }
     LaunchedEffect(Unit) {
+        viewModel.readUser(UserSession.userId.toString())
         imageUrl = getImageFromFirebase("images/foto.jpg")
     }
 
     Scaffold(
     ) {
         TopMenu(
-            title = "Historial de Ayudas",
+            title = "Perfil de Usuario",
             navController = navController
         )
         Column(
@@ -107,7 +112,7 @@ fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController) {
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .size(150.dp)
+                    .size(120.dp)
                     .border(2.dp, Color.Gray, CircleShape)
                     .clickable { navController.navigate("camera") } // Llamada a la cámara al hacer clic
                     .padding(8.dp)
@@ -139,14 +144,35 @@ fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController) {
                 label = { Text(text = "Email@") },
                 shape = RoundedCornerShape(12.dp)
             )
-            TextField(
-                value = password,
-                onValueChange = { password = it },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(4.dp),
-                label = { Text(text = "Contraseña") },
-                shape = RoundedCornerShape(12.dp))
+            Row(){
+                TextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    modifier = Modifier
+                        .width(220.dp)
+                        .padding(4.dp),
+                    label = { Text(text = "Contraseña") },
+                    shape = RoundedCornerShape(12.dp),
+                    visualTransformation = PasswordVisualTransformation(),
+                    enabled = isLogged != true
+                )
+                Button(
+                    onClick = {
+                        // Envía la contraseña al correo
+                        viewModel.sendPasswordToEmail(email)
+                        Toast.makeText(context, "Contraseña enviada al correo", Toast.LENGTH_SHORT).show()
+                    },
+                    modifier = Modifier
+                        .weight(1f),
+                    enabled = isLogged != false
+                ) {
+                    Text(
+                        "Restablecer\nContraseña",
+                        fontSize = 14.sp,
+                        textAlign = TextAlign.Center)
+                }
+            }
+
             TextField(
                 value = name,
                 onValueChange = { name = it },
@@ -169,7 +195,7 @@ fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(4.dp),
-                label = { Text(text = "Ingrese su número de celular") },
+                label = { Text(text = "Teléfono / Celular") },
                 shape = RoundedCornerShape(12.dp))
             TextField(
                 value = address,
@@ -177,7 +203,7 @@ fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(4.dp),
-                label = { Text(text = "Ingrese su dirección") },
+                label = { Text(text = "Dirección") },
                 shape = RoundedCornerShape(12.dp))
             TextField(
                 value = location,
@@ -185,73 +211,86 @@ fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(4.dp),
-                label = { Text(text = "Seleccione su ubicación") },
+                label = { Text(text = "Ubicación") },
                 shape = RoundedCornerShape(12.dp))
 
-            Button(onClick = {
-                if (email.isNotBlank() && password.isNotBlank() && name.isNotBlank() && lastname.isNotBlank()) {
-                    viewModel.registerUser(
-                        User(name, lastname, imageUrl, phone, address, location),
-                        email,
-                        password,
-                        onSuccess = {
-                            println("Usuario registrado con éxito.")
+            if (isLogged) {
+                Button(
+                    onClick = {
+                        if (email.isNotBlank() && name.isNotBlank() && lastname.isNotBlank()) {
+                                viewModel.updateUser(
+                                    User(email, name, lastname, imageUrl, phone, address, location),
+                                    onSuccess = {
+                                        println("Datos del usuario actualizados con éxito.")
+                                        Toast.makeText(
+                                            context,
+                                            "Datos del usuario actualizados con éxito.",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                        //navigationController.navigate(BottomNavItem.History.route)
+                                    },
+                                    onFailure = { exception ->
+                                        println("Error al actualizar los datos del usuario: $exception")
+                                        Toast.makeText(
+                                            context,
+                                            "Error al actualizar los datos del usuario: ${exception.message}",
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                    }
+                                )
+                        } else {
+                            println("Por favor, completa todos los campos.")
                             Toast.makeText(
                                 context,
-                                "Usuario registrado con éxito.",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            //navigationController.navigate(BottomNavItem.History.route)
-                        },
-                        onFailure = { exception ->
-                            println("Error al registrar el usuario: $exception")
-                            Toast.makeText(
-                                context,
-                                "Error al registrar el usuario: ${exception.message}",
+                                "Por favor, completa todos los campos.",
                                 Toast.LENGTH_LONG
                             ).show()
                         }
-                    )
-                } else {
-                    println("Por favor, completa todos los campos.")
-                    Toast.makeText(
-                        context,
-                        "Por favor, completa todos los campos.",
-                        Toast.LENGTH_LONG
-                    ).show()
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Actualizar Datos")
                 }
-            },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Registrar Usuario")
+            } else{
+                Button(
+                    onClick = {
+                        if (email.isNotBlank() && password.isNotBlank() && name.isNotBlank() && lastname.isNotBlank()) {
+                                viewModel.registerUser(
+                                    User(email, name, lastname, imageUrl, phone, address, location),
+                                    email,
+                                    password,
+                                    onSuccess = {
+                                        println("Usuario registrado con éxito.")
+                                        Toast.makeText(
+                                            context,
+                                            "Usuario registrado con éxito.",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                        navController.navigate(BottomNavItem.Home.route)
+                                    },
+                                    onFailure = { exception ->
+                                        println("Error al registrar el usuario: $exception")
+                                        Toast.makeText(
+                                            context,
+                                            "Error al registrar el usuario: ${exception.message}",
+                                            Toast.LENGTH_LONG
+                                        ).show()
+                                    }
+                                )
+                        } else {
+                            println("Por favor, completa todos los campos.")
+                            Toast.makeText(
+                                context,
+                                "Por favor, completa todos los campos.",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Registrar Usuario")
+                }
             }
-        }
-    }
-}
-
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@Composable
-fun UserScreen(viewModel: ProfileViewModel) {
-
-    val uiState by viewModel.uiState
-
-    LaunchedEffect(Unit) {
-        viewModel.readUser()
-    }
-    Scaffold(
-
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-        ) {
-            Text(text = uiState.name)
-            Text(text = uiState.lastname)
-            Text(text = uiState.imageUrl)
-            Text(text = uiState.phone)
-            Text(text = uiState.address)
-            Text(text = uiState.location)
         }
     }
 }

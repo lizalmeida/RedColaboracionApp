@@ -1,8 +1,10 @@
 package com.example.redcolaboracion.viewmodel
 
 import android.util.Log
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import com.example.redcolaboracion.model.Category
 import com.example.redcolaboracion.model.LoginUIState
 import com.example.redcolaboracion.model.User
 import com.example.redcolaboracion.model.UserSession
@@ -10,6 +12,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.auth
+import com.google.firebase.firestore.SetOptions
 import com.google.firebase.firestore.firestore
 
 class ProfileViewModel: ViewModel() {
@@ -37,6 +40,8 @@ class ProfileViewModel: ViewModel() {
                         .addOnSuccessListener {
                             println("Usuario registrado con éxito.")
                             onSuccess()
+                            UserSession.userId = currentUser?.uid
+                            println(UserSession.userId)
                         }
                         .addOnFailureListener { exception ->
                             println("Error al registrar el usuario: $exception")
@@ -53,9 +58,27 @@ class ProfileViewModel: ViewModel() {
             }
     }
 
-    fun readUser() {
+    fun updateUser(
+        user: User,
+        onSuccess: () -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
         val db = Firebase.firestore
-        val docRef = db.collection("users").document("KhpDvVx0RRZLU5UEeJ487CjUDJ43")
+        db.collection("users").document(UserSession.userId.toString())
+            .set(user, SetOptions.merge())
+            .addOnSuccessListener {
+                println("Datos del usuario actualizados con éxito.")
+                onSuccess()
+            }
+            .addOnFailureListener { exception ->
+                println("Error al actualizar los datos del usuario: $exception")
+                onFailure(exception)
+            }
+    }
+
+    fun readUser(userId: String) {
+        val db = Firebase.firestore
+        val docRef = db.collection("users").document(userId)
         docRef.addSnapshotListener { snapshot, e ->
             if (e != null) {
                 Log.w(TAG, "Listen failed.", e)
@@ -69,8 +92,10 @@ class ProfileViewModel: ViewModel() {
             }
 
             if (snapshot != null && snapshot.exists()) {
+
                 Log.d(TAG, "$source data: ${snapshot.data}")
 
+                val email = snapshot.get("email").toString()
                 val name = snapshot.get("name").toString()
                 val lastname = snapshot.get("lastname").toString()
                 val imageUrl = snapshot.get("imageUrl").toString()
@@ -78,7 +103,7 @@ class ProfileViewModel: ViewModel() {
                 val address = snapshot.get("address").toString()
                 val location = snapshot.get("location").toString()
 
-                uiState.value = LoginUIState(name, lastname, imageUrl, phone, address, location)
+                uiState.value = LoginUIState(email, name, lastname, imageUrl, phone, address, location)
 
             } else {
                 Log.d(TAG, "$source data: null")
@@ -113,4 +138,42 @@ class ProfileViewModel: ViewModel() {
                 }
             }
     }
+
+    fun userNames(
+        userId: String,
+        onLoginSuccess: (String?) -> Unit,
+        onLoginFailed: (String?) -> Unit
+    ) {
+        val db = Firebase.firestore
+
+        db.collection("users").document(userId)
+            .get()
+            .addOnSuccessListener { result ->
+                if (result != null && result.exists()) {
+                    val userName = result.getString("name")
+                    val userLastName = result.getString("lastname")
+                    onLoginSuccess(userName + " " + userLastName)
+                } else {
+                    onLoginFailed("Usuario no encontrado")
+                }
+            }
+            .addOnFailureListener { exception ->
+                println("Error al obtener el usuario: $exception")
+            onLoginFailed("Error al obtener el usuario: ${exception.message}")
+            }
+    }
+
+    fun sendPasswordToEmail(email: String) {
+        val auth = FirebaseAuth.getInstance()
+
+        auth.sendPasswordResetEmail(email)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Log.d("ProfileViewModel", "Correo de restablecimiento enviado a: $email")
+                } else {
+                    Log.e("ProfileViewModel", "Error al enviar correo de restablecimiento", task.exception)
+                }
+            }
+    }
+
 }

@@ -26,6 +26,7 @@ class RequestedHelpListViewModel: ViewModel() {
         }
         if (category != null) {
             query = query.whereEqualTo("category", category)
+            query = query.whereEqualTo("status", "Solicitada")
         }
 
         // Ejecutar la consulta
@@ -48,17 +49,26 @@ class RequestedHelpListViewModel: ViewModel() {
                 val doc_efectiveHelp = doc["efectiveHelp"].toString()
                 val doc_efectiveDate_stamp: Timestamp = doc["efectiveDate"] as Timestamp
                 val doc_efectiveDate = formato.format(doc_efectiveDate_stamp.toDate()).toString()
-                val RequestedHelp1 = RequestedHelp(
-                    id = doc_id,
-                    requestMessage = doc_requestmessage,
-                    requestDate = doc_requestdate,
-                    category = doc_category,
-                    priority = doc_priority,
-                    status = doc_status,
-                    efectiveHelp = doc_efectiveHelp,
-                    efectiveDate = doc_efectiveDate,
-                )
-                uiRequestedHelpList.add(RequestedHelp1)
+                val doc_userId = doc["userId"].toString()
+
+                db.collection("users").document(doc_userId).get()
+                    .addOnSuccessListener { userDoc ->
+                        val doc_requestedUser =
+                            userDoc["name"].toString() + " " + userDoc["lastname"].toString()
+
+                        val RequestedHelp1 = RequestedHelp(
+                            id = doc_id,
+                            requestMessage = doc_requestmessage,
+                            requestDate = doc_requestdate,
+                            category = doc_category,
+                            priority = doc_priority,
+                            status = doc_status,
+                            efectiveHelp = doc_efectiveHelp,
+                            efectiveDate = doc_efectiveDate,
+                            requestUser = doc_requestedUser
+                        )
+                        uiRequestedHelpList.add(RequestedHelp1)
+                    }
             }
         }
     }

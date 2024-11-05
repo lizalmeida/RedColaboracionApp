@@ -36,6 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.redcolaboracion.model.UserSession
 import com.example.redcolaboracion.view.CameraPreview
 import com.example.redcolaboracion.view.EventScreen
 import com.example.redcolaboracion.view.GivedHelpScreen
@@ -48,15 +49,15 @@ import com.example.redcolaboracion.viewmodel.EventViewModel
 import com.example.redcolaboracion.viewmodel.ProfileViewModel
 import com.example.redcolaboracion.viewmodel.RequestedHelpListViewModel
 import com.example.redcolaboracion.viewmodel.RequestedHelpViewModel
-import com.google.firebase.auth.FirebaseAuth
 
 @RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MainScreen() {
     val navController = rememberNavController()
-    val isAuthenticated = remember { mutableStateOf(false) }
+    val isAuthenticated = remember { mutableStateOf(UserSession.userId != null) }
     val pendingRoute = remember { mutableStateOf<String?>(null) }
+    println("Esta autenticado:" + isAuthenticated)
 
     Scaffold(
         bottomBar =  { BottomTabBar(navController, isAuthenticated, pendingRoute) }
@@ -91,26 +92,28 @@ fun BottomTabBar(
                 selected = isSelected,
                 label = {  Text(text = barItem.title) },
                 onClick = {
-                    if (needAuth == false || (needAuth == true and isAuthenticated.value)) {
-                        navController.navigate(barItem.route) {
-                            navController.graph.startDestinationRoute.let { route ->
-                                if (route != null) {
-                                    popUpTo(route) {
-                                        saveState = true
-                                    }
-                                }
-                            }
+                    println("Route: ${barItem.route}, needAuth: $needAuth, isAuthenticated: ${isAuthenticated.value}")
+
+                    //if (!needAuth || isAuthenticated.value) {
+                        navController.navigate(barItem.route) //{
+                            //navController.graph.startDestinationRoute.let { route ->
+                            //    if (route != null) {
+                            //        popUpTo(route) {
+                            //            saveState = true
+                            //        }
+                            //    }
+                            //}
                             // evitar que se recomponga la misma ruta
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    } else {
-                        //pendingRoute.value = route
-                        navController.navigate("login"){
-                            launchSingleTop = true
-                            restoreState = true
-                        }
-                    }
+                            //launchSingleTop = true
+                            //restoreState = true
+                        //}
+                    //} else {
+                        pendingRoute.value = barItem.route
+                    //    navController.navigate("login"){
+                    //        launchSingleTop = true
+                    //        restoreState = true
+                    //    }
+                    //}
                 },
                 icon = {
                     Icon(
@@ -130,10 +133,7 @@ fun NavigationGraph(
     isAuthenticated: MutableState<Boolean>,
     pendingRoute: MutableState<String?>
 ) {
-    val context = LocalContext.current
     val requestedHelpId = "requestedHelpId"
-    var userId by remember { mutableStateOf("") }
-    var errorMessage by remember { mutableStateOf("") }
 
     NavHost(navController = navController, startDestination = BottomNavItem.Home.route) {
         composable(BottomNavItem.Home.route) { HomeScreen() }
@@ -154,27 +154,9 @@ fun NavigationGraph(
         composable(BottomNavItem.History.route) { HistoryScreenL(navController) }
         composable(BottomNavItem.Profile.route) { ProfileScreenL(navController) }
         composable("camera") { CameraPreview(navController) }
-        composable("login") {
-            LoginScreen(
-                onLoginSuccess = {uid ->
-                    userId = uid.toString()
-                    isAuthenticated.value = true
-                    pendingRoute.value?.let { navController.navigate(it) }
-                    pendingRoute.value = null
-                    navController.popBackStack("login", inclusive = true)
-                },
-                onLoginFailed = {error ->
-                    errorMessage = error.toString()
-                    println("Error en el usuario o contraseña.")
-                    Toast.makeText(
-                        context,
-                        "Error en el usuario o contraseña. Vuelva a intentarlo.",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            )
+        composable("login") { LoginScreenL(pendingRoute, navController)}
+
         }
-    }
 }
 
 @Composable
@@ -200,7 +182,12 @@ fun RequestedHelpScreenL(navController: NavController) {
         modifier = Modifier
             .fillMaxSize()
     ) {
-        RequestedHelpScreen(requestedHelpViewModel, navController)
+        println("Usuario actual:" + UserSession.userId)
+        if (UserSession.userId == null) {
+            navController.navigate("login")
+        } else {
+            RequestedHelpScreen(requestedHelpViewModel, navController)
+        }
     }
 }
 
@@ -213,7 +200,11 @@ fun GivedHelpScreenL(navController: NavController) {
         modifier = Modifier
             .fillMaxSize()
     ) {
-        GivedHelpScreen(requestedHelpListViewModel, navController)
+        if (UserSession.userId == null) {
+            navController.navigate("login")
+        } else {
+            GivedHelpScreen(requestedHelpListViewModel, navController)
+        }
     }
 }
 
@@ -250,7 +241,11 @@ fun HistoryScreenL(navController: NavHostController) {
         modifier = Modifier
             .fillMaxSize()
     ) {
-        HistoryScreen(navController)
+        if (UserSession.userId == null) {
+            navController.navigate("login")
+        } else {
+            HistoryScreen(navController)
+        }
     }
 }
 
@@ -267,6 +262,33 @@ fun ProfileScreenL(navController: NavHostController) {
     }
 }
 
+@Composable
+fun LoginScreenL(pendingRoute: MutableState<String?>, navController: NavHostController){
+    var userId by remember { mutableStateOf("") }
+    var errorMessage by remember { mutableStateOf("") }
+    val context = LocalContext.current
+
+    LoginScreen(
+        onLoginSuccess = {uid ->
+            userId = uid.toString()
+            //isAuthenticated.value = true
+            pendingRoute.value?.let { route ->
+                navController.navigate(route) // Navega a la ruta pendiente
+                pendingRoute.value = null // Resetea la ruta pendiente
+            }
+            //navController.popBackStack("login", inclusive = true)
+        },
+        onLoginFailed = {error ->
+            errorMessage = error.toString()
+            println("Error en el usuario o contraseña.")
+            Toast.makeText(
+                context,
+                "Error en el usuario o contraseña. Vuelva a intentarlo.",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    )
+}
 @RequiresApi(Build.VERSION_CODES.O)
 @Preview(showBackground = true, showSystemUi = true)
 @Composable

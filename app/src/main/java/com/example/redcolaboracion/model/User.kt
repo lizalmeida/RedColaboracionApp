@@ -1,6 +1,7 @@
 package com.example.redcolaboracion.model
 
 data class User(
+    val email: String,
     val name: String,
     val lastname: String,
     val imageUrl: String?,
