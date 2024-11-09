@@ -38,6 +38,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.redcolaboracion.model.UserSession
 import com.example.redcolaboracion.view.CameraPreview
+import com.example.redcolaboracion.view.EfectiveHelpScreen
 import com.example.redcolaboracion.view.EventScreen
 import com.example.redcolaboracion.view.GivedHelpScreen
 import com.example.redcolaboracion.view.GivedHelpScreenStep2
@@ -136,7 +137,7 @@ fun NavigationGraph(
     val requestedHelpId = "requestedHelpId"
 
     NavHost(navController = navController, startDestination = BottomNavItem.Home.route) {
-        composable(BottomNavItem.Home.route) { HomeScreen() }
+        composable(BottomNavItem.Home.route) { HomeScreen(navController) }
         composable(BottomNavItem.RequestedHelp.route) { RequestedHelpScreenL(navController) }
         composable(BottomNavItem.GivedHelp.route) { GivedHelpScreenL(navController) }
 
@@ -152,6 +153,13 @@ fun NavigationGraph(
         }
 
         composable(BottomNavItem.History.route) { HistoryScreenL(navController) }
+        composable("${BottomNavItem.History.route}/{$requestedHelpId}") {backStackEntry ->
+            println("Antes de llamar a la pantalla")
+            EfectiveHelpScreen(
+                requestedHelpId = backStackEntry.arguments?.getString(requestedHelpId) ?: "missing requestHelpId",
+                navController
+            )
+        }
         composable(BottomNavItem.Profile.route) { ProfileScreenL(navController) }
         composable("camera") { CameraPreview(navController) }
         composable("login") { LoginScreenL(pendingRoute, navController)}
@@ -160,7 +168,7 @@ fun NavigationGraph(
 }
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(navController: NavController) {
     val eventViewModel: EventViewModel = viewModel()
     Column(
         verticalArrangement = Arrangement.Center,
@@ -168,7 +176,7 @@ fun HomeScreen() {
         modifier = Modifier
             .fillMaxSize()
     ) {
-        EventScreen(eventViewModel)
+        EventScreen(eventViewModel, navController)
     }
 }
 
@@ -258,7 +266,11 @@ fun ProfileScreenL(navController: NavHostController) {
         modifier = Modifier
             .fillMaxSize()
     ) {
-        ProfileScreen(profileViewModel, navController)
+        if (UserSession.userId == null) {
+            navController.navigate("login")
+        } else {
+            ProfileScreen(profileViewModel, navController)
+        }
     }
 }
 
@@ -269,6 +281,7 @@ fun LoginScreenL(pendingRoute: MutableState<String?>, navController: NavHostCont
     val context = LocalContext.current
 
     LoginScreen(
+        navController,
         onLoginSuccess = {uid ->
             userId = uid.toString()
             //isAuthenticated.value = true

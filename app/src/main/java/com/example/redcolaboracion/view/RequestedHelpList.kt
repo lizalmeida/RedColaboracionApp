@@ -2,6 +2,7 @@ package com.example.redcolaboracion.view
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -23,14 +24,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.redcolaboracion.model.RequestedHelp
 import com.example.redcolaboracion.model.UserSession
+import com.example.redcolaboracion.navigation.BottomNavItem
 import com.example.redcolaboracion.viewmodel.RequestedHelpListViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun RequestedHelpList(viewModel: RequestedHelpListViewModel) {
+fun RequestedHelpList(viewModel: RequestedHelpListViewModel, navController: NavController) {
     LaunchedEffect(Unit) {
         viewModel.readEvent(userId = UserSession.userId)   //Lista mis solicitudes
     }
@@ -43,11 +46,16 @@ fun RequestedHelpList(viewModel: RequestedHelpListViewModel) {
         ) {
             Row(){
                 Text(text = "",
-                    modifier = Modifier.width(30.dp)
+                    modifier = Modifier.width(20.dp)
+                )
+                Text(text = "Fecha",
+                    modifier = Modifier
+                        .padding (horizontal = 2.dp)
+                        .weight(1f)
                 )
                 Text(text = "Categoría",
                     modifier = Modifier
-                        .width(120.dp)
+                        .width(80.dp)
                         .padding (horizontal = 2.dp)
                 )
                 //Spacer(modifier = Modifier.weight(1f))
@@ -70,7 +78,10 @@ fun RequestedHelpList(viewModel: RequestedHelpListViewModel) {
             ) {
                 items(viewModel.uiRequestedHelpList.size) { currentRequestedHelp ->
                     val requestedHelp = viewModel.uiRequestedHelpList[currentRequestedHelp]
-                    RequestedHelpRow(requestedHelp)
+                    RequestedHelpRow(requestedHelp){ requestedHelpId ->
+                        navController.navigate("${BottomNavItem.History.route}/$requestedHelpId")
+                        println("Navega a History/id" + requestedHelpId + "${BottomNavItem.History.route}/$requestedHelpId")
+                    }
                     Divider()
                 }
             }
@@ -79,19 +90,20 @@ fun RequestedHelpList(viewModel: RequestedHelpListViewModel) {
 }
 
 @Composable
-fun RequestedHelpRow(requestedHelp: RequestedHelp) {
+fun RequestedHelpRow(requestedHelp: RequestedHelp, onClick:(String) -> Unit) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
+            .clickable { onClick(requestedHelp.id) }
     ) {
         if ( requestedHelp.efectiveHelp.toBoolean()) {
             Image(
                 painter = rememberAsyncImagePainter("https://firebasestorage.googleapis.com/v0/b/redcolaboracion-7d500.appspot.com/o/images%2Fcheck.png?alt=media&token=35c8dc77-7bae-46df-9b0d-d01a1f1a7343"),
                 contentDescription = null,
                 modifier = Modifier
-                    .size(30.dp)
+                    .size(20.dp)
                     .padding(horizontal = 2.dp)
             )
         } else {
@@ -99,23 +111,31 @@ fun RequestedHelpRow(requestedHelp: RequestedHelp) {
                 painter = rememberAsyncImagePainter("https://firebasestorage.googleapis.com/v0/b/redcolaboracion-7d500.appspot.com/o/images%2Fcross.png?alt=media&token=02c50774-f140-461f-8a01-2e20968a9d62"),
                 contentDescription = null,
                 modifier = Modifier
-                    .size(30.dp)
+                    .size(20.dp)
                     .padding(horizontal = 2.dp)
             )
         }
         Text(
-            text = requestedHelp.category,
-            fontSize = 14.sp,
+            text = requestedHelp.requestDate,
+            fontSize = 12.sp,
             color = Color.Black,
             modifier = Modifier
-                .width(120.dp)
+                .weight(1f)
+                .padding(horizontal = 2.dp)
+        )
+        Text(
+            text = requestedHelp.category,
+            fontSize = 12.sp,
+            color = Color.Black,
+            modifier = Modifier
+                .width(80.dp)
                 .padding (horizontal = 2.dp)
         )
         Text(
             text = if (requestedHelp.priority.toInt() == 1) "Urgente"
                    else if (requestedHelp.priority.toInt() == 2) "1 Día"
                    else if (requestedHelp.priority.toInt() == 3) "1 Semana" else "",
-            fontSize = 14.sp,
+            fontSize = 12.sp,
             color = if (requestedHelp.priority.toInt() == 1) Color.Red else Color.Black,
             modifier = Modifier
                 .weight(1f)
@@ -123,7 +143,7 @@ fun RequestedHelpRow(requestedHelp: RequestedHelp) {
         )
         Text(
             text = requestedHelp.status,
-            fontSize = 14.sp,
+            fontSize = 12.sp,
             color = Color.Black,
             modifier = Modifier
                 .weight(1f)
@@ -131,9 +151,9 @@ fun RequestedHelpRow(requestedHelp: RequestedHelp) {
         )
     }
 }
-
+/*
 @Preview(showBackground = true)
 @Composable
 fun PreviewRequestedHelpList() {
     RequestedHelpList(viewModel = RequestedHelpListViewModel())
-}
+} */

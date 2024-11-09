@@ -42,11 +42,16 @@ fun GivedHelpList(viewModel: GivedHelpListViewModel) {
         ) {
             Row(){
                 Text(text = "",
-                    modifier = Modifier.width(30.dp)
+                    modifier = Modifier.width(20.dp)
+                )
+                Text(text = "Fecha",
+                    modifier = Modifier
+                        .padding (horizontal = 2.dp)
+                        .weight(1f)
                 )
                 Text(text = "Categoría",
                     modifier = Modifier
-                        .width(120.dp)
+                        .width(80.dp)
                         .padding (horizontal = 2.dp)
                 )
                 //Spacer(modifier = Modifier.weight(1f))
@@ -90,7 +95,7 @@ fun GivedHelpRow(givedHelp: RequestedHelp) {
                 painter = rememberAsyncImagePainter("https://firebasestorage.googleapis.com/v0/b/redcolaboracion-7d500.appspot.com/o/images%2Fcheck.png?alt=media&token=35c8dc77-7bae-46df-9b0d-d01a1f1a7343"),
                 contentDescription = null,
                 modifier = Modifier
-                    .size(30.dp)
+                    .size(20.dp)
                     .padding(horizontal = 2.dp)
             )
         } else {
@@ -98,21 +103,29 @@ fun GivedHelpRow(givedHelp: RequestedHelp) {
                 painter = rememberAsyncImagePainter("https://firebasestorage.googleapis.com/v0/b/redcolaboracion-7d500.appspot.com/o/images%2Fcross.png?alt=media&token=02c50774-f140-461f-8a01-2e20968a9d62"),
                 contentDescription = null,
                 modifier = Modifier
-                    .size(30.dp)
+                    .size(20.dp)
                     .padding(horizontal = 2.dp)
             )
         }
         Text(
-            text = givedHelp.category,
-            fontSize = 14.sp,
+            text = givedHelp.requestDate,
+            fontSize = 12.sp,
             color = Color.Black,
             modifier = Modifier
-                .width(120.dp)
+                .weight(1f)
+                .padding(horizontal = 2.dp)
+        )
+        Text(
+            text = givedHelp.category,
+            fontSize = 12.sp,
+            color = Color.Black,
+            modifier = Modifier
+                .width(80.dp)
                 .padding (horizontal = 2.dp)
         )
         Text(
             text = givedHelp.requestUser,
-            fontSize = 14.sp,
+            fontSize = 12.sp,
             color = Color.Black,
             modifier = Modifier
                 .weight(1f)
@@ -120,7 +133,7 @@ fun GivedHelpRow(givedHelp: RequestedHelp) {
         )
         Text(
             text = givedHelp.status,
-            fontSize = 14.sp,
+            fontSize = 12.sp,
             color = Color.Black,
             modifier = Modifier
                 .weight(1f)

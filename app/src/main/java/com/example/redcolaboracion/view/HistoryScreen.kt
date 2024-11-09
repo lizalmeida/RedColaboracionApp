@@ -75,7 +75,7 @@ fun HistoryScreen(navController: NavController) {
             Spacer(modifier = Modifier.height(2.dp))
             Divider()
             if (selectedOption == "Solicitudes")
-                RequestedHelpList(viewModel())
+                RequestedHelpList(viewModel(), navController)
             else
                 GivedHelpList(viewModel())
         }

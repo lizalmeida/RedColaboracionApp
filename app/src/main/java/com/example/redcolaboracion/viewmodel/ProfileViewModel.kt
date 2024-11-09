@@ -1,10 +1,8 @@
 package com.example.redcolaboracion.viewmodel
 
 import android.util.Log
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import com.example.redcolaboracion.model.Category
 import com.example.redcolaboracion.model.LoginUIState
 import com.example.redcolaboracion.model.User
 import com.example.redcolaboracion.model.UserSession
@@ -32,7 +30,7 @@ class ProfileViewModel: ViewModel() {
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     val currentUser = auth.currentUser
-                    //saveUser(currentUser?.uid ?: "no-id", user)
+
                     val db = Firebase.firestore
                     db.collection("users")
                         .document(currentUser?.uid ?: "no-id")
@@ -136,30 +134,6 @@ class ProfileViewModel: ViewModel() {
                     val error = task.exception?.localizedMessage ?: "Error desconocido"
                     onLoginFailed(error)
                 }
-            }
-    }
-
-    fun userNames(
-        userId: String,
-        onLoginSuccess: (String?) -> Unit,
-        onLoginFailed: (String?) -> Unit
-    ) {
-        val db = Firebase.firestore
-
-        db.collection("users").document(userId)
-            .get()
-            .addOnSuccessListener { result ->
-                if (result != null && result.exists()) {
-                    val userName = result.getString("name")
-                    val userLastName = result.getString("lastname")
-                    onLoginSuccess(userName + " " + userLastName)
-                } else {
-                    onLoginFailed("Usuario no encontrado")
-                }
-            }
-            .addOnFailureListener { exception ->
-                println("Error al obtener el usuario: $exception")
-            onLoginFailed("Error al obtener el usuario: ${exception.message}")
             }
     }
 

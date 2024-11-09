@@ -42,7 +42,7 @@ fun TopMenu(
     Scaffold(
         modifier = Modifier
             .fillMaxWidth()
-            .height(60.dp),
+            .height(40.dp),
         topBar = {
             TopAppBar(
                 title = {

@@ -28,27 +28,37 @@ import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.redcolaboracion.viewmodel.EventViewModel
 import com.example.redcolaboracion.model.Event
+import com.example.redcolaboracion.navigation.TopMenu
 import com.example.redcolaboracion.ui.theme.Purple40
 import com.example.redcolaboracion.ui.theme.Purple80
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun EventScreen(viewModel: EventViewModel) {
+fun EventScreen(viewModel: EventViewModel, navController: NavController) {
     val pathImage = "https://firebasestorage.googleapis.com/v0/b/redcolaboracion-7d500.appspot.com/o/images%2Fdireccion_cell.png?alt=media&token=7bdf1212-26ff-4617-8a81-eac41deef8d5"
 
     LaunchedEffect(Unit) {
         viewModel.readEvent()
     }
 
-    Scaffold() {
+    Scaffold(
+        topBar = {
+            TopMenu(
+                title = "IEVI Norte",
+                navController = navController
+            )
+        }
+    ) {
+        paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .padding(paddingValues)
                 .padding(16.dp)
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Top,
+                //verticalArrangement = Arrangement.Top,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Box(
@@ -128,9 +138,9 @@ fun EventRow(event: Event) {
         }
     }
 }
-
+/*
 @Preview(showBackground = true)
 @Composable
 fun PreviewEventScreen() {
     EventScreen(viewModel = EventViewModel())
-}
+} */

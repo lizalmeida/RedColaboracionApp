@@ -205,14 +205,14 @@ fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController) {
                     .padding(4.dp),
                 label = { Text(text = "Dirección") },
                 shape = RoundedCornerShape(12.dp))
-            TextField(
+/*            TextField(
                 value = location,
                 onValueChange = { location = it },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(4.dp),
                 label = { Text(text = "Ubicación") },
-                shape = RoundedCornerShape(12.dp))
+                shape = RoundedCornerShape(12.dp)) */
 
             if (isLogged) {
                 Button(

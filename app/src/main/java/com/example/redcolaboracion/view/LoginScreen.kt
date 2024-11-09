@@ -30,16 +30,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.redcolaboracion.model.User
+import com.example.redcolaboracion.ui.theme.Purple40
 import com.example.redcolaboracion.viewmodel.EventViewModel
 import com.example.redcolaboracion.viewmodel.ProfileViewModel
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun LoginScreen(
+    navController: NavController,
     onLoginSuccess: (String?) -> Unit,
     onLoginFailed: (String?) -> Unit
 ){
@@ -125,5 +129,13 @@ fun LoginScreen(
                 Text(it, color = Color.Red)
             }
         }
+        Text(
+            text = "No tienes cuenta? Crea una",
+            fontSize = 16.sp,
+            color = Purple40,
+            modifier = Modifier
+                .clickable { navController.navigate("profile") }
+
+        )
     }
 }
