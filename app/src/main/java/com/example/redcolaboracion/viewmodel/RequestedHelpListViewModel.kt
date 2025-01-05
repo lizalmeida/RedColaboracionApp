@@ -2,6 +2,7 @@ package com.example.redcolaboracion.viewmodel
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
+import com.example.redcolaboracion.model.Category
 import com.example.redcolaboracion.model.RequestedHelp
 import com.google.firebase.Firebase
 import com.google.firebase.Timestamp
@@ -28,7 +29,6 @@ class RequestedHelpListViewModel: ViewModel() {
             query = query.whereEqualTo("category", category)
             query = query.whereEqualTo("status", "Solicitada")
         }
-
         // Ejecutar la consulta
         query.get().addOnSuccessListener { documents ->
             val source = if (documents != null && documents.metadata.hasPendingWrites()) {

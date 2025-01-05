@@ -21,7 +21,9 @@ import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.LifecycleOwner
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import com.example.redcolaboracion.model.UserSession
 import com.example.redcolaboracion.navigation.BottomNavItem
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
@@ -34,7 +36,7 @@ import com.google.firebase.storage.storage
 @OptIn(ExperimentalPermissionsApi::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun CameraPreview(navHostController: NavHostController) {
+fun CameraPreview(navController: NavController) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
@@ -55,7 +57,7 @@ fun CameraPreview(navHostController: NavHostController) {
         Button(
             onClick = {
                 val executor = ContextCompat.getMainExecutor(context)
-                takePicture(cameraController, executor, navHostController)
+                takePicture(cameraController, executor, navController)
                       },
             modifier = Modifier
                 .padding(16.dp)
@@ -70,18 +72,18 @@ fun CameraPreview(navHostController: NavHostController) {
     }
 }
 
-private fun takePicture(cameraController: LifecycleCameraController, executor: Executor, navHostController: NavHostController){
-    val file = File.createTempFile("foto",".jpg")
+private fun takePicture(cameraController: LifecycleCameraController, executor: Executor, navController: NavController){
+    val file = File.createTempFile("foto_perfil",".jpg")
     val outputDirectory = ImageCapture.OutputFileOptions.Builder(file).build()
     val storageRef = Firebase.storage.reference
-    val photoRef = storageRef.child("images/foto.jpg")
+    val photoRef = storageRef.child("images/foto_perfil.jpg")
 
     cameraController.takePicture(outputDirectory, executor, object: ImageCapture.OnImageSavedCallback{
         override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
             cameraController.unbind()
             val uploadTask = photoRef.putFile(Uri.fromFile(file))
             uploadTask.addOnSuccessListener {
-                navHostController.navigate(BottomNavItem.Profile.route)
+                navController.navigate(BottomNavItem.Profile.route)
             }.addOnFailureListener { exception ->
                 println("Error al tomar foto")
             }

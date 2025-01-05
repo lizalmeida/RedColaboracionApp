@@ -1,6 +1,7 @@
 package com.example.redcolaboracion.view
 
 import android.annotation.SuppressLint
+import android.widget.Toast
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,6 +20,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -30,28 +32,35 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.redcolaboracion.navigation.BottomNavItem
 import com.example.redcolaboracion.navigation.TopMenu
+import com.example.redcolaboracion.viewmodel.RequestedHelpViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun EfectiveHelpScreen(requestedHelpId: String, navController: NavController) {
-    //val givedHelpViewModel: GivedHelpViewModel = viewModel()
-    //val uiRequestedHelp by givedHelpViewModel.UIRequestedHelp
+    val requestedHelpViewModel: RequestedHelpViewModel = viewModel()
+    val uiRequestedHelp by requestedHelpViewModel.UIRequestedHelp
+
     var selectedOption by remember { mutableStateOf("SI") }
 
-    var comments by remember {
+    var fieldDate by remember {
         mutableStateOf("")
     }
-    var fieldDate by remember {
+    var efectiveHelp by remember {
+        mutableStateOf(true)
+    }
+    var efectiveComments by remember {
         mutableStateOf("")
     }
     val context = LocalContext.current
 
     // Ejecutar la lectura del documento cuando se cargue la pantalla
-    //LaunchedEffect(requestedHelpId) {
-    //    givedHelpViewModel.readRequestedHelp(requestedHelpId)
-    //}
+    LaunchedEffect(requestedHelpId) {
+        requestedHelpViewModel.readRequestedHelp(requestedHelpId)
+    }
 
     Scaffold(
         topBar = {
@@ -82,22 +91,22 @@ fun EfectiveHelpScreen(requestedHelpId: String, navController: NavController) {
                     modifier = Modifier.fillMaxWidth() // Fill the Box space
                 ) {
                     Text(
-                        //text = "Categoría: ${uiRequestedHelp.category}",
-                        text = "Categoría: Víveres",
+                        text = "Categoría: ${uiRequestedHelp.category}",
+                        //text = "Categoría: Víveres",
                         fontSize = 14.sp,
                         modifier = Modifier
                             .padding(vertical = 8.dp)
                     )
                     Text(
-                        //text = "Fecha Solicitud: ${uiRequestedHelp.requestDate}",
-                        text = "Fecha Solicitud: 08/11/2024",
+                        text = "Fecha Solicitud: ${uiRequestedHelp.requestDate}",
+                        //text = "Fecha Solicitud: 08/11/2024",
                         fontSize = 14.sp,
                         modifier = Modifier
                             .padding(vertical = 8.dp)
                     )
                     Text(
-                        //text = "Detalle: \$${uiRequestedHelp.requestMessage}",
-                        text = "Detalle: No tengo trabajo desde hace 3 meses, ayúdenme con comida para mi familia.",
+                        text = "Detalle: \$${uiRequestedHelp.requestMessage}",
+                        //text = "Detalle: No tengo trabajo desde hace 3 meses, ayúdenme con comida para mi familia.",
                         fontSize = 14.sp,
                         modifier = Modifier
                             .padding(vertical = 8.dp)
@@ -145,14 +154,31 @@ fun EfectiveHelpScreen(requestedHelpId: String, navController: NavController) {
 
             Spacer(modifier = Modifier.height(10.dp))
             Text(
+                text = "Fecha/Hora de Ayuda:",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .size(20.dp)
+            )
+            TextField(
+                value = fieldDate,
+                onValueChange = { fieldDate = it },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(10.dp),
+                label = { Text(text = "dd/MM/yyyy HH:mm") },
+                shape = RoundedCornerShape(12.dp)
+            )
+
+            Spacer(modifier = Modifier.height(10.dp))
+            Text(
                 text = "Comentarios sobre la ayuda recibida:",
                 modifier = Modifier
                     .fillMaxWidth()
                     .size(20.dp)
             )
             TextField(
-                value = comments,
-                onValueChange = { comments = it },
+                value = efectiveComments,
+                onValueChange = { efectiveComments = it },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(10.dp),
@@ -160,20 +186,19 @@ fun EfectiveHelpScreen(requestedHelpId: String, navController: NavController) {
                 shape = RoundedCornerShape(12.dp)
             )
 
-            //val offeredDate = stringToDate(fieldDate);
+            val efectiveDate = stringToDate(fieldDate);
 
             Button(
                 onClick = {
-/*                    if (comments.isNotBlank() && fieldDate.isNotBlank()) {
-                        offeredDate?.let {
-                            givedHelpViewModel.saveGivedHelp(
+                    if (efectiveComments.isNotBlank() && fieldDate.isNotBlank()) {
+                        efectiveDate?.let {
+                            requestedHelpViewModel.endedRequestHelp(
                                 uidRequestedHelp = requestedHelpId,
-                                comments = comments,
-                                offeredDate = offeredDate,
-                                givedDate = offeredDate,
-                                uidUser = UserSession.userId.toString(),
+                                efectiveDate = efectiveDate,
+                                efectiveHelp = efectiveHelp,
+                                efectiveComments = efectiveComments,
                                 onSuccess = {
-                                    println("Ayuda ofrecida guardada con éxito.")
+                                    println("Ayuda finalizada con éxito.")
                                     Toast.makeText(
                                         context,
                                         "Ayuda ofrecida guardada con éxito.",
@@ -190,7 +215,7 @@ fun EfectiveHelpScreen(requestedHelpId: String, navController: NavController) {
                                 ).show()
                             }
                         }
-                    } */
+                    }
                 },
                 modifier = Modifier.fillMaxWidth()
             )  {

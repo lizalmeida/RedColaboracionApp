@@ -27,8 +27,6 @@ import java.util.Locale
 class RequestedHelpViewModel: ViewModel() {
     val firestore: FirebaseFirestore = Firebase.firestore
     //var categories = mutableStateListOf<Category>()
-    private val _categories = MutableStateFlow<List<Category>>(emptyList())
-    val categories: StateFlow<List<Category>> = _categories
     val TAG = "RequestedHelpViewModel"
     var UIRequestedHelp = mutableStateOf(RequestedHelp())
 
@@ -41,6 +39,7 @@ class RequestedHelpViewModel: ViewModel() {
         efectiveHelp: Boolean,
         //efectiveDate: Date?,  // Nullable Date
         efectiveDate: Date,
+        efectiveComments: String,
         userId: String,
         onSuccess: () -> Unit,
         onFailure: (Exception) -> Unit
@@ -54,6 +53,7 @@ class RequestedHelpViewModel: ViewModel() {
                 "status" to status,
                 "efectiveHelp" to efectiveHelp,
                 "efectiveDate" to Timestamp(efectiveDate),
+                "efectiveComments" to efectiveComments,
                 "userId" to userId
             )
 
@@ -70,19 +70,89 @@ class RequestedHelpViewModel: ViewModel() {
         }
     }
 
-    fun fetchCategories() {
-        viewModelScope.launch {
-            firestore.collection("category")
-                .get()
-                .addOnSuccessListener { result ->
-                    val categoryList = result.map { document ->
-                        Category(document.getString("name") ?: "")
+    fun readRequestedHelp(id: String){
+        val db = Firebase.firestore
+        val docRef = db.collection("requestedHelp").document(id)
+        docRef.addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                Log.w(TAG, "Listen failed.", e)
+                return@addSnapshotListener
+            }
+
+            val source = if (snapshot != null && snapshot.metadata.hasPendingWrites()) {
+                "Local"
+            } else {
+                "Server"
+            }
+
+            val formato = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+
+            if (snapshot != null && snapshot.exists()) {
+                Log.d(TAG, "$source data: ${snapshot.data}")
+
+                val doc_id = snapshot.get("id").toString()
+                val doc_requestmessage = snapshot.get("requestMessage").toString()
+                //val doc_requestdate_stamp: Timestamp = snapshot.get("requestDate").toString() as Timestamp
+                val doc_requestdate_stamp: Timestamp? = snapshot.get("requestDate") as? Timestamp
+                val doc_requestdate = formato.format(doc_requestdate_stamp?.toDate()).toString()
+                val doc_category = snapshot.get("category").toString()
+                val doc_priority = snapshot.get("priority").toString()
+                val doc_status = snapshot.get("status").toString()
+                val doc_efectiveHelp = snapshot.get("efectiveHelp").toString()
+                //val doc_efectiveDate_stamp: Timestamp = snapshot.get("efectiveDate").toString() as Timestamp
+                val doc_efectiveDate_stamp: Timestamp? = snapshot.get("efectiveDate") as? Timestamp
+                val doc_efectiveDate = formato.format(doc_efectiveDate_stamp?.toDate()).toString()
+                val doc_userId = snapshot.get("userId").toString()
+
+                db.collection("users").document(doc_userId).get()
+                    .addOnSuccessListener { userDoc ->
+                        val doc_requestedUser =
+                            userDoc["name"].toString() + " " + userDoc["lastname"].toString()
+
+                        UIRequestedHelp.value = RequestedHelp(
+                            doc_id,
+                            doc_requestmessage,
+                            doc_requestdate,
+                            doc_category,
+                            doc_priority,
+                            doc_status,
+                            doc_efectiveHelp,
+                            doc_efectiveDate,
+                            doc_requestedUser
+                        )
                     }
-                    _categories.value = categoryList  // Actualiza el StateFlow con la nueva lista
+            } else {
+                Log.d(TAG, "$source data: null")
+            }
+        }
+    }
+
+    fun endedRequestHelp(
+        uidRequestedHelp: String,
+        efectiveDate: Date,
+        efectiveHelp: Boolean,
+        efectiveComments: String,
+        onSuccess: () -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        viewModelScope.launch {
+            val data = mapOf(
+                "efectiveHelp" to efectiveHelp,
+                "efectiveDate" to Timestamp(efectiveDate),
+                "efectiveComments" to efectiveComments,
+                "status" to "Finalizada"
+            )
+
+            firestore.collection("requestedHelp")
+                .document(uidRequestedHelp)
+                .update(data)
+                .addOnSuccessListener {
+                    println("Solicitud de ayuda Finalizada")
+                    onSuccess()
                 }
                 .addOnFailureListener { exception ->
-                    // Manejar error si es necesario
-                    println("Error al obtener categorías: $exception")
+                    println("Error al finalizar la solicitud de ayuda: $exception")
+                    onFailure(exception)
                 }
         }
     }

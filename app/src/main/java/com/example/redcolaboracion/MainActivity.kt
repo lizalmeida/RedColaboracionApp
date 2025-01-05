@@ -18,6 +18,7 @@ import com.google.firebase.FirebaseApp
 import com.google.firebase.appcheck.FirebaseAppCheck
 import com.google.firebase.appcheck.appCheck
 import com.google.firebase.appcheck.playintegrity.PlayIntegrityAppCheckProviderFactory
+import com.google.firebase.appcheck.debug.DebugAppCheckProviderFactory
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.initialize
 
@@ -31,8 +32,10 @@ class MainActivity : ComponentActivity() {
         //)
         Firebase.initialize(context = this)
         Firebase.appCheck.installAppCheckProviderFactory(
-            PlayIntegrityAppCheckProviderFactory.getInstance(),
+            //PlayIntegrityAppCheckProviderFactory.getInstance(),
+            DebugAppCheckProviderFactory.getInstance()
         )
+
         setContent {
             RedColaboracionAppTheme {
                 // A surface container using the 'background' color from the theme

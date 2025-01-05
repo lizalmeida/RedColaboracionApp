@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Divider
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
@@ -35,6 +36,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -44,6 +46,7 @@ import com.example.redcolaboracion.model.RequestedHelp
 import com.example.redcolaboracion.model.UserSession
 import com.example.redcolaboracion.navigation.BottomNavItem
 import com.example.redcolaboracion.navigation.TopMenu
+import com.example.redcolaboracion.viewmodel.CategoryViewModel
 import com.example.redcolaboracion.viewmodel.GivedHelpViewModel
 import com.example.redcolaboracion.viewmodel.RequestedHelpListViewModel
 import com.example.redcolaboracion.viewmodel.RequestedHelpViewModel
@@ -54,11 +57,23 @@ import java.util.Date
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun GivedHelpScreen(viewModel: RequestedHelpListViewModel, navController: NavController) {
-    val requestedHelps = viewModel.uiRequestedHelpList
 
+    val categoryViewModel: CategoryViewModel = viewModel()
     LaunchedEffect(Unit) {
-        viewModel.readEvent(category = "Víveres") //CORREGIR: categorias configuradas
+        categoryViewModel.fetchUserCategories(UserSession.userId.toString())
     }
+    val userCategories by categoryViewModel.userCategories.collectAsState()
+    //val userCategories by categoryViewModel.userCategories.collectAsState(emptyList())
+
+    val requestedHelps = viewModel.uiRequestedHelpList
+    val category = remember { mutableStateOf("") }
+    LaunchedEffect(category.value) {
+        //viewModel.readEvent(category = "Víveres") //CORREGIR: categorias configuradas
+        if (category.value.isNotEmpty()) {
+            viewModel.readEvent(category = category.value)
+        }
+    }
+    var selectedCategory by remember { mutableStateOf("") }
 
     Scaffold() {
         TopMenu(
@@ -71,6 +86,24 @@ fun GivedHelpScreen(viewModel: RequestedHelpListViewModel, navController: NavCon
                 .padding(16.dp)
                 .padding(vertical = 40.dp)
         ) {
+            userCategories.forEach { currentCategory ->
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    RadioButton(
+                        selected = selectedCategory == currentCategory.name,
+                        onClick = {
+                            selectedCategory = currentCategory.name
+                            category.value = currentCategory.name
+                        }
+                    )
+                    //Text(text = userCategories.contains(category.name))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(text = currentCategory.name)
+                }
+            }
+
             LazyColumn(
                 modifier = Modifier.weight(1f)
             ) {

@@ -30,10 +30,15 @@ import com.example.redcolaboracion.model.RequestedHelp
 import com.example.redcolaboracion.model.UserSession
 import com.example.redcolaboracion.navigation.BottomNavItem
 import com.example.redcolaboracion.viewmodel.RequestedHelpListViewModel
+import com.google.firebase.Firebase
+import com.google.firebase.perf.performance
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun RequestedHelpList(viewModel: RequestedHelpListViewModel, navController: NavController) {
+    val profileScreenTrace = Firebase.performance.newTrace("helps_load_time")
+    profileScreenTrace.start()
+
     LaunchedEffect(Unit) {
         viewModel.readEvent(userId = UserSession.userId)   //Lista mis solicitudes
     }
@@ -79,7 +84,7 @@ fun RequestedHelpList(viewModel: RequestedHelpListViewModel, navController: NavC
                 items(viewModel.uiRequestedHelpList.size) { currentRequestedHelp ->
                     val requestedHelp = viewModel.uiRequestedHelpList[currentRequestedHelp]
                     RequestedHelpRow(requestedHelp){ requestedHelpId ->
-                        navController.navigate("${BottomNavItem.History.route}/$requestedHelpId")
+                        navController.navigate("${BottomNavItem.History.route}/EfectiveHelp/$requestedHelpId")
                         println("Navega a History/id" + requestedHelpId + "${BottomNavItem.History.route}/$requestedHelpId")
                     }
                     Divider()
@@ -87,6 +92,7 @@ fun RequestedHelpList(viewModel: RequestedHelpListViewModel, navController: NavC
             }
         }
     }
+    profileScreenTrace.stop()
 }
 
 @Composable

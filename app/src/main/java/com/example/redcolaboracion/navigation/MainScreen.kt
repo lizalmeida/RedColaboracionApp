@@ -46,6 +46,7 @@ import com.example.redcolaboracion.view.HistoryScreen
 import com.example.redcolaboracion.view.LoginScreen
 import com.example.redcolaboracion.view.ProfileScreen
 import com.example.redcolaboracion.view.RequestedHelpScreen
+import com.example.redcolaboracion.view.UserInfoScreen
 import com.example.redcolaboracion.viewmodel.EventViewModel
 import com.example.redcolaboracion.viewmodel.ProfileViewModel
 import com.example.redcolaboracion.viewmodel.RequestedHelpListViewModel
@@ -153,12 +154,27 @@ fun NavigationGraph(
         }
 
         composable(BottomNavItem.History.route) { HistoryScreenL(navController) }
-        composable("${BottomNavItem.History.route}/{$requestedHelpId}") {backStackEntry ->
+        composable("${BottomNavItem.History.route}/{section}/{$requestedHelpId}") {backStackEntry ->
+            val section = backStackEntry.arguments?.getString("section")
             println("Antes de llamar a la pantalla")
-            EfectiveHelpScreen(
-                requestedHelpId = backStackEntry.arguments?.getString(requestedHelpId) ?: "missing requestHelpId",
-                navController
-            )
+
+            when (section) {
+                "EfectiveHelp" -> {
+                    EfectiveHelpScreen(
+                        requestedHelpId = backStackEntry.arguments?.getString(requestedHelpId) ?: "missing requestHelpId",
+                        navController
+                    )
+                }
+                "UserInfo" -> {
+                    UserInfoScreen(
+                        userId = backStackEntry.arguments?.getString(requestedHelpId) ?: "missing requestHelpId",
+                        navController
+                    )
+                }
+                else -> {
+                    Text("Sección no reconocida")
+                }
+            }
         }
         composable(BottomNavItem.Profile.route) { ProfileScreenL(navController) }
         composable("camera") { CameraPreview(navController) }
@@ -266,11 +282,7 @@ fun ProfileScreenL(navController: NavHostController) {
         modifier = Modifier
             .fillMaxSize()
     ) {
-        if (UserSession.userId == null) {
-            navController.navigate("login")
-        } else {
-            ProfileScreen(profileViewModel, navController)
-        }
+        ProfileScreen(profileViewModel, navController)
     }
 }
 

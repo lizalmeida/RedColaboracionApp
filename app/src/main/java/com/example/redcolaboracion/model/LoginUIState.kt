@@ -7,5 +7,6 @@ data class LoginUIState(
     var imageUrl: String = "",
     var phone: String = "",
     var address: String = "",
-    var location: String = ""
+    var location: String = "",
+    var userId: String = ""
 )

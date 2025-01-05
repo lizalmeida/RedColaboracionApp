@@ -77,7 +77,7 @@ fun HistoryScreen(navController: NavController) {
             if (selectedOption == "Solicitudes")
                 RequestedHelpList(viewModel(), navController)
             else
-                GivedHelpList(viewModel())
+                GivedHelpList(viewModel(), navController)
         }
     }
 }

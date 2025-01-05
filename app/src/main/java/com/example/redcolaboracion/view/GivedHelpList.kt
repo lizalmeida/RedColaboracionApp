@@ -2,6 +2,7 @@ package com.example.redcolaboracion.view
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -23,13 +24,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.redcolaboracion.model.RequestedHelp
+import com.example.redcolaboracion.navigation.BottomNavItem
 import com.example.redcolaboracion.viewmodel.GivedHelpListViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun GivedHelpList(viewModel: GivedHelpListViewModel) {
+fun GivedHelpList(viewModel: GivedHelpListViewModel, navController: NavController) {
     LaunchedEffect(Unit) {
         viewModel.readEvent()
     }
@@ -74,7 +77,10 @@ fun GivedHelpList(viewModel: GivedHelpListViewModel) {
             ) {
                 items(viewModel.uiGivedHelpList.size) { currentGivedHelp ->
                     val givedHelp = viewModel.uiGivedHelpList[currentGivedHelp]
-                    GivedHelpRow(givedHelp)
+                    GivedHelpRow(givedHelp){ requestedHelpId ->
+                        navController.navigate("${BottomNavItem.History.route}/UserInfo/$requestedHelpId")
+                        println("Navega a History/id" + requestedHelpId + "${BottomNavItem.History.route}/$requestedHelpId")
+                    }
                     Divider()
                 }
             }
@@ -83,12 +89,13 @@ fun GivedHelpList(viewModel: GivedHelpListViewModel) {
 }
 
 @Composable
-fun GivedHelpRow(givedHelp: RequestedHelp) {
+fun GivedHelpRow(givedHelp: RequestedHelp, onClick:(String) -> Unit) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
+            .clickable { onClick(givedHelp.requestUserId) }
     ) {
         if ( givedHelp.efectiveHelp.toBoolean()) {
             Image(
@@ -141,9 +148,9 @@ fun GivedHelpRow(givedHelp: RequestedHelp) {
         )
     }
 }
-
+/*
 @Preview(showBackground = true)
 @Composable
 fun PreviewGivedHelpList() {
     GivedHelpList(viewModel = GivedHelpListViewModel())
-}
+} */

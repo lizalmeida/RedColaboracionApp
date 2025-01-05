@@ -31,12 +31,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.example.redcolaboracion.model.Category
 import com.example.redcolaboracion.model.UserSession
 import com.example.redcolaboracion.navigation.BottomNavItem
 import com.example.redcolaboracion.navigation.TopMenu
+import com.example.redcolaboracion.viewmodel.CategoryViewModel
+import com.example.redcolaboracion.viewmodel.GivedHelpViewModel
 import com.example.redcolaboracion.viewmodel.RequestedHelpViewModel
 import java.time.LocalDate
 import java.time.ZoneId
@@ -46,9 +49,11 @@ import java.util.Date
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun RequestedHelpScreen(viewModel: RequestedHelpViewModel, navController: NavController) {
-    val categories by viewModel.categories.collectAsState()
+
+    val categoryViewModel: CategoryViewModel = viewModel()
+    val categories by categoryViewModel.categories.collectAsState()
     LaunchedEffect(Unit) {
-        viewModel.fetchCategories()
+        categoryViewModel.fetchCategories()
     }
     var selectedCategory by remember { mutableStateOf<Category?>(null) }
 
@@ -161,6 +166,7 @@ fun RequestedHelpScreen(viewModel: RequestedHelpViewModel, navController: NavCon
                             status = "Solicitada",
                             efectiveHelp = false,
                             efectiveDate = efectiveDate,
+                            efectiveComments = "",
                             userId = UserSession.userId.toString(),
                             onSuccess = {
                                 println("Solicitud de ayuda guardada con éxito.")

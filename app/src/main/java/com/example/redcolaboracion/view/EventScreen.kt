@@ -31,10 +31,15 @@ import com.example.redcolaboracion.model.Event
 import com.example.redcolaboracion.navigation.TopMenu
 import com.example.redcolaboracion.ui.theme.Purple40
 import com.example.redcolaboracion.ui.theme.Purple80
+import com.google.firebase.Firebase
+import com.google.firebase.perf.performance
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun EventScreen(viewModel: EventViewModel, navController: NavController) {
+    val profileScreenTrace = Firebase.performance.newTrace("events_load_time")
+    profileScreenTrace.start()
+
     val pathImage = "https://firebasestorage.googleapis.com/v0/b/redcolaboracion-7d500.appspot.com/o/images%2Fdireccion_cell.png?alt=media&token=7bdf1212-26ff-4617-8a81-eac41deef8d5"
 
     LaunchedEffect(Unit) {
@@ -87,6 +92,7 @@ fun EventScreen(viewModel: EventViewModel, navController: NavController) {
             }
         }
     }
+    profileScreenTrace.stop()
 }
 
 @Composable

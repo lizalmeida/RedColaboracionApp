@@ -23,24 +23,8 @@
       <entry key="PreviewHistoryScreen">
         <State />
       </entry>
-      <entry key="PreviewSplashScreen">
-        <State />
-      </entry>
       <entry key="app">
-        <State>
-          <runningDeviceTargetSelectedWithDropDown>
-            <Target>
-              <type value="RUNNING_DEVICE_TARGET" />
-              <deviceKey>
-                <Key>
-                  <type value="SERIAL_NUMBER" />
-                  <value value="adb-R58R53RDHKX-jm6Kbc._adb-tls-connect._tcp" />
-                </Key>
-              </deviceKey>
-            </Target>
-          </runningDeviceTargetSelectedWithDropDown>
-          <timeTargetWasSelectedWithDropDown value="2024-05-02T21:36:19.626405400Z" />
-        </State>
+        <State />
       </entry>
     </value>
   </component>

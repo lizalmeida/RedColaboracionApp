@@ -9,5 +9,7 @@ data class RequestedHelp (
     var status: String = "",
     var efectiveHelp: String = "",
     var efectiveDate: String = "",
-    var requestUser: String = ""
+    var efectiveComments: String = "",
+    var requestUser: String = "",
+    var requestUserId: String = ""
 )
