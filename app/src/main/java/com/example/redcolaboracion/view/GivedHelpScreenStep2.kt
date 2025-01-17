@@ -5,10 +5,8 @@ import android.os.Build
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,7 +28,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.sp
@@ -39,12 +38,18 @@ import com.example.redcolaboracion.model.UserSession
 import com.example.redcolaboracion.navigation.BottomNavItem
 import com.example.redcolaboracion.navigation.TopMenu
 import com.example.redcolaboracion.viewmodel.GivedHelpViewModel
-import java.time.LocalDate
+import com.google.firebase.Timestamp
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun GivedHelpScreenStep2(requestedHelpId: String, navController: NavController) {
+
+    val focusRequester = remember { FocusRequester() }
+    // Solicitar foco automáticamente al abrir la pantalla
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
 
     val givedHelpViewModel: GivedHelpViewModel = viewModel()
     val uiRequestedHelp by givedHelpViewModel.UIRequestedHelp
@@ -52,8 +57,8 @@ fun GivedHelpScreenStep2(requestedHelpId: String, navController: NavController) 
     var comments by remember {
         mutableStateOf("")
     }
-    var fieldDate by remember {
-        mutableStateOf("")
+    var offeredDate by remember {
+        mutableStateOf<Timestamp?>(null)
     }
     val context = LocalContext.current
 
@@ -76,19 +81,18 @@ fun GivedHelpScreenStep2(requestedHelpId: String, navController: NavController) 
                 .padding(16.dp)
                 .padding(vertical = 40.dp)
         ) {
-            //Text(text = "ID: ${it.id}")
             Box(
                 modifier = Modifier
-                    .fillMaxWidth() // Set the size of the Box
+                    .fillMaxWidth()
                     .border(
-                        width = 2.dp,                // Border thickness
-                        color = Color.Blue,           // Border color
-                        shape = RoundedCornerShape(16.dp) // Rounded corners with 16.dp radius
+                        width = 2.dp,
+                        color = Color.Blue,
+                        shape = RoundedCornerShape(16.dp)
                     )
-                    .padding(16.dp) // Optional padding inside the Box
+                    .padding(16.dp)
             ) {
                 Column(
-                    modifier = Modifier.fillMaxWidth() // Fill the Box space
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
                         text = "Categoría: ${uiRequestedHelp.category}",
@@ -109,9 +113,12 @@ fun GivedHelpScreenStep2(requestedHelpId: String, navController: NavController) 
                             .padding(vertical = 8.dp)
                     )
                     Text(
-                        text = if (uiRequestedHelp.priority == "1") "Prioridad: Urgente"
-                        else if (uiRequestedHelp.priority == "2") "Prioridad: 1 Día"
-                        else if (uiRequestedHelp.priority == "3") "Prioridad: 1 Semana" else "",
+                        text = when (uiRequestedHelp.priority) {
+                            "1" -> "Prioridad: Urgente"
+                            "2" -> "Prioridad: 1 Día"
+                            "3" -> "Prioridad: 1 Semana"
+                            else -> ""
+                        },
                         color = if (uiRequestedHelp.priority == "1") Color.Red else Color.Black,
                         fontSize = 14.sp,
                         modifier = Modifier
@@ -127,7 +134,6 @@ fun GivedHelpScreenStep2(requestedHelpId: String, navController: NavController) 
             }
             Spacer(modifier = Modifier.height(10.dp))
             Divider()
-
             Text(
                 text = "Comentarios para el solicitante:",
                 modifier = Modifier
@@ -139,11 +145,11 @@ fun GivedHelpScreenStep2(requestedHelpId: String, navController: NavController) 
                 onValueChange = { comments = it },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(10.dp),
+                    .padding(10.dp)
+                    .focusRequester(focusRequester),
                 label = { Text(text = "Comentarios:") },
                 shape = RoundedCornerShape(12.dp)
             )
-
             Spacer(modifier = Modifier.height(10.dp))
             Text(
                 text = "Fecha/Hora de Entrega:",
@@ -151,40 +157,22 @@ fun GivedHelpScreenStep2(requestedHelpId: String, navController: NavController) 
                     .fillMaxWidth()
                     .size(20.dp)
             )
-            TextField(
-                value = fieldDate,
-                onValueChange = { fieldDate = it },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp),
-                label = { Text(text = "dd/MM/yyyy HH:mm") },
-                shape = RoundedCornerShape(12.dp)
+            DateTimePickerField(
+                label = "Selecciona una fecha",
+                onDateSelected = { timestamp ->
+                    offeredDate = timestamp //stringToDate(fieldDate);
+                    println("Timestamp seleccionado: $timestamp")
+                }
             )
-
-            /*            val offeredDate = remember { mutableStateOf(LocalDate.now())}
-        CustomDatePicker(
-            value = offeredDate.value,
-            onValueChange = {offeredDate.value = it}
-        ) */
-            /*            DateTextField(context = context, onDateSelected = { fecha ->
-            fieldDate = fecha  // Actualizar el estado con la fecha seleccionada
-        }) */
-            /* TextField(
-            value = offeredDate,
-            onValueChange = {offeredDate = it},
-            label = { Text(text = "Fecha/Hora de Entrega") }
-        )*/
-            val offeredDate = stringToDate(fieldDate);
-
             Button(
                 onClick = {
-                    if (comments.isNotBlank() && fieldDate.isNotBlank()) {
+                    if (comments.isNotBlank() ) { //&& DateTimePickerField.isNotBlank()
                         offeredDate?.let {
                             givedHelpViewModel.saveGivedHelp(
                                 uidRequestedHelp = requestedHelpId,
                                 comments = comments,
-                                offeredDate = offeredDate,
-                                givedDate = offeredDate,
+                                offeredDate = offeredDate!!,
+                                givedDate = offeredDate!!,
                                 uidUser = UserSession.userId.toString(),
                                 onSuccess = {
                                     println("Ayuda ofrecida guardada con éxito.")

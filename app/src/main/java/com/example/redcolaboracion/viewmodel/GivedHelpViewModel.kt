@@ -24,8 +24,8 @@ class GivedHelpViewModel: ViewModel() {
     fun saveGivedHelp(
         uidRequestedHelp: String,
         comments: String,
-        offeredDate: Date,
-        givedDate: Date,
+        offeredDate: Timestamp,
+        givedDate: Timestamp,
         uidUser: String,
         onSuccess: () -> Unit,
         onFailure: (Exception) -> Unit
@@ -34,8 +34,8 @@ class GivedHelpViewModel: ViewModel() {
             val data = mapOf(
                 "uidRequestedHelp" to uidRequestedHelp,
                 "comments" to comments,
-                "offeredDate" to Timestamp(offeredDate),
-                "givedDate" to Timestamp(givedDate),
+                "offeredDate" to offeredDate, //Timestamp(offeredDate),
+                "givedDate" to offeredDate, //Timestamp(givedDate),
                 "uidUser" to uidUser
             )
 
