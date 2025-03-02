@@ -1,5 +1,6 @@
 package com.example.redcolaboracion.viewmodel
 
+import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import com.example.redcolaboracion.model.Event
@@ -10,8 +11,9 @@ import java.util.Locale
 import com.google.firebase.Timestamp
 
 class EventViewModel: ViewModel() {
+    private val TAG = "EventViewModel"
+
     var uiEventsList = mutableStateListOf<Event>()
-    val TAG = "EventViewModel"
 
     fun readEvent() {
         val db = Firebase.firestore
@@ -25,24 +27,33 @@ class EventViewModel: ViewModel() {
                 "Server"
             }
 
-            uiEventsList.clear()
-            for (doc in documents) {
-                val doc_id = doc["id"].toString()
-                val doc_title = doc["title"].toString()
-                val doc_content = doc["content"].toString()
-                val doc_imageUrl = doc["imageUrl"].toString()
-                val timestampFromFirestore: Timestamp = doc["date"] as Timestamp
-                val doc_date = formato.format(timestampFromFirestore.toDate()).toString()
-                val event1 = Event(
-                    id = doc_id,
-                    title = doc_title,
-                    content = doc_content,
-                    imageUrl = doc_imageUrl,
-                    date = doc_date,
-                    startPublishDate = "",
-                    endPublishDate = "")
-                uiEventsList.add(event1)
+            if (documents != null && !documents.isEmpty) {
+                Log.d(TAG, "Eventos recuperados con éxito.")
+
+                uiEventsList.clear()
+                for (doc in documents) {
+                    val docId = doc["id"].toString()
+                    val docTitle = doc["title"].toString()
+                    val docContent = doc["content"].toString()
+                    val docImageUrl = doc["imageUrl"].toString()
+                    val timestampFromFirestore: Timestamp = doc["date"] as Timestamp
+                    val docDate = formato.format(timestampFromFirestore.toDate()).toString()
+                    val event1 = Event(
+                        id = docId,
+                        title = docTitle,
+                        content = docContent,
+                        imageUrl = docImageUrl,
+                        date = docDate,
+                        startPublishDate = "",
+                        endPublishDate = "")
+                    uiEventsList.add(event1)
+                }
+            } else {
+                Log.d(TAG, "$source datos: null")
             }
+        }
+        .addOnFailureListener { exception ->
+            Log.e(TAG, "Error al recuperar los eventos: $exception")
         }
     }
 }

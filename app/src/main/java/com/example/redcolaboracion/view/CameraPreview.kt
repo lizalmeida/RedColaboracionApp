@@ -3,6 +3,7 @@ package com.example.redcolaboracion.view
 import android.Manifest
 import android.annotation.SuppressLint
 import android.net.Uri
+import android.util.Log
 import android.view.ViewGroup
 import androidx.camera.core.CameraSelector
 import androidx.camera.view.PreviewView
@@ -22,8 +23,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
-import com.example.redcolaboracion.model.UserSession
 import com.example.redcolaboracion.navigation.BottomNavItem
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
@@ -73,6 +72,7 @@ fun CameraPreview(navController: NavController) {
 }
 
 private fun takePicture(cameraController: LifecycleCameraController, executor: Executor, navController: NavController){
+    val TAG = "takePicture"
     val file = File.createTempFile("foto_perfil",".jpg")
     val outputDirectory = ImageCapture.OutputFileOptions.Builder(file).build()
     val storageRef = Firebase.storage.reference
@@ -85,11 +85,11 @@ private fun takePicture(cameraController: LifecycleCameraController, executor: E
             uploadTask.addOnSuccessListener {
                 navController.navigate(BottomNavItem.Profile.route)
             }.addOnFailureListener { exception ->
-                println("Error al tomar foto")
+                Log.e(TAG, "Error al tomar la foto: $exception")
             }
         }
         override fun onError(exception: ImageCaptureException) {
-            println("Error al tomar foto")
+            Log.e(TAG, "Error al tomar la foto: $exception")
         }
     })
 }

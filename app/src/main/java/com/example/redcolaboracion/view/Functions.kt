@@ -90,58 +90,64 @@ fun stringToDate(dateString: String, pattern: String = "dd/MM/yyyy"): Date? {
 
 @Composable
 fun DateTimePickerField(
-    label: String = "dd/MM/yyyy HH:mm",
     onDateSelected: (Timestamp) -> Unit
 ) {
     var fieldDate by remember { mutableStateOf("") }
+    var showDatePicker by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
     val calendar = Calendar.getInstance()
+    println ("Ingresa a la función para desplegar el calendario " + showDatePicker)
 
-    // DatePickerDialog para seleccionar la fecha
-    val datePickerDialog = DatePickerDialog(
-        context,
-        { _, year, month, dayOfMonth ->
-            calendar.set(year, month, dayOfMonth)
+    if (showDatePicker) {
+        // DatePickerDialog para seleccionar la fecha
+        println ("Calendario launched effect" + showDatePicker)
+        showDatePicker = false // Ocultarlo para evitar múltiples llamadas
 
-            // TimePickerDialog para seleccionar la hora
-            TimePickerDialog(
-                context,
-                { _, hourOfDay, minute ->
-                    calendar.set(Calendar.HOUR_OF_DAY, hourOfDay)
-                    calendar.set(Calendar.MINUTE, minute)
+        DatePickerDialog(
+            context,
+            { _, year, month, dayOfMonth ->
+                calendar.set(year, month, dayOfMonth)
 
-                    // Formatear la fecha y hora seleccionada
-                    val format = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
-                    fieldDate = format.format(calendar.time)
+                // TimePickerDialog para seleccionar la hora
+                TimePickerDialog(
+                    context,
+                    { _, hourOfDay, minute ->
+                        calendar.set(Calendar.HOUR_OF_DAY, hourOfDay)
+                        calendar.set(Calendar.MINUTE, minute)
 
-                    // Convertir a Timestamp y devolverlo
-                    onDateSelected(Timestamp(calendar.time))
-                },
-                calendar.get(Calendar.HOUR_OF_DAY),
-                calendar.get(Calendar.MINUTE),
-                true
-            ).show()
-        },
-        calendar.get(Calendar.YEAR),
-        calendar.get(Calendar.MONTH),
-        calendar.get(Calendar.DAY_OF_MONTH)
-    ).show()
+                        // Formatear la fecha y hora seleccionada
+                        val format = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+                        fieldDate = format.format(calendar.time)
 
-    // Componente de texto con clic para abrir el calendario
+                        // Convertir a Timestamp y devolverlo
+                        onDateSelected(Timestamp(calendar.time))
+                        //showDatePicker.value = false
+                    },
+                    calendar.get(Calendar.HOUR_OF_DAY),
+                    calendar.get(Calendar.MINUTE),
+                    true
+                ).show()
+            },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        ).show()
+        // Componente de texto con clic para abrir el calendario
+    }
     Box(
         modifier = Modifier
             .padding(10.dp)
-            .clickable { datePickerDialog } // Mostrar el selector al hacer clic
+            .clickable { showDatePicker = true } // Mostrar el selector al hacer clic - datePickerDialog
     ) {
         TextField(
+            value = fieldDate,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(10.dp),
-            enabled = true,
-            value = fieldDate,
+            label = { Text(text = "dd/MM/yyyy HH:mm") },
+            enabled = false,
             onValueChange = { /* Solo lectura, no necesita implementación */ },
-            label = { Text(text = label) },
             shape = RoundedCornerShape(12.dp),
             //readOnly = true, // Hace que el campo sea de solo lectura
             singleLine = true

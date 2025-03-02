@@ -30,13 +30,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.redcolaboracion.navigation.BottomNavItem
 import com.example.redcolaboracion.navigation.TopMenu
 import com.example.redcolaboracion.viewmodel.RequestedHelpViewModel
+import com.google.firebase.Timestamp
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -46,8 +46,8 @@ fun EfectiveHelpScreen(requestedHelpId: String, navController: NavController) {
 
     var selectedOption by remember { mutableStateOf("SI") }
 
-    var fieldDate by remember {
-        mutableStateOf("")
+    var efectiveDate by remember {
+        mutableStateOf<Timestamp?>(null)
     }
     var efectiveHelp by remember {
         mutableStateOf(true)
@@ -159,14 +159,12 @@ fun EfectiveHelpScreen(requestedHelpId: String, navController: NavController) {
                     .fillMaxWidth()
                     .size(20.dp)
             )
-            TextField(
-                value = fieldDate,
-                onValueChange = { fieldDate = it },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(10.dp),
-                label = { Text(text = "dd/MM/yyyy HH:mm") },
-                shape = RoundedCornerShape(12.dp)
+            DateTimePickerField(
+                //label = "Selecciona una fecha",
+                onDateSelected = { timestamp ->
+                    efectiveDate = timestamp //stringToDate(fieldDate);
+                    println("Timestamp seleccionado: $timestamp")
+                }
             )
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -186,11 +184,9 @@ fun EfectiveHelpScreen(requestedHelpId: String, navController: NavController) {
                 shape = RoundedCornerShape(12.dp)
             )
 
-            val efectiveDate = stringToDate(fieldDate);
-
             Button(
                 onClick = {
-                    if (efectiveComments.isNotBlank() && fieldDate.isNotBlank()) {
+                    if (efectiveComments.isNotBlank()) {  // && efectiveDate.isNotBlank()
                         efectiveDate?.let {
                             requestedHelpViewModel.endedRequestHelp(
                                 uidRequestedHelp = requestedHelpId,

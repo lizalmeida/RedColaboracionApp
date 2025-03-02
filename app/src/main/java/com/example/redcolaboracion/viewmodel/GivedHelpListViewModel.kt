@@ -11,8 +11,9 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 class GivedHelpListViewModel: ViewModel() {
-    var uiGivedHelpList = mutableStateListOf<RequestedHelp>()
     val TAG = "GivedHelpViewModel"
+
+    var uiGivedHelpList = mutableStateListOf<RequestedHelp>()
 
     fun readEvent() {
         val db = Firebase.firestore

@@ -1,26 +1,16 @@
 package com.example.redcolaboracion.viewmodel
 
 import android.util.Log
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.redcolaboracion.model.Category
-import com.example.redcolaboracion.model.LoginUIState
 import com.example.redcolaboracion.model.RequestedHelp
-import com.example.redcolaboracion.model.User
 import com.google.firebase.Firebase
 import com.google.firebase.Timestamp
-import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.firestore
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import retrofit2.http.Tag
 import java.text.SimpleDateFormat
-import java.time.LocalDate
 import java.util.Date
 import java.util.Locale
 
@@ -102,6 +92,7 @@ class RequestedHelpViewModel: ViewModel() {
                 //val doc_efectiveDate_stamp: Timestamp = snapshot.get("efectiveDate").toString() as Timestamp
                 val doc_efectiveDate_stamp: Timestamp? = snapshot.get("efectiveDate") as? Timestamp
                 val doc_efectiveDate = formato.format(doc_efectiveDate_stamp?.toDate()).toString()
+                val doc_efectiveComments = snapshot.get("efectiveComments").toString()
                 val doc_userId = snapshot.get("userId").toString()
 
                 db.collection("users").document(doc_userId).get()
@@ -110,15 +101,16 @@ class RequestedHelpViewModel: ViewModel() {
                             userDoc["name"].toString() + " " + userDoc["lastname"].toString()
 
                         UIRequestedHelp.value = RequestedHelp(
-                            doc_id,
-                            doc_requestmessage,
-                            doc_requestdate,
-                            doc_category,
-                            doc_priority,
-                            doc_status,
-                            doc_efectiveHelp,
-                            doc_efectiveDate,
-                            doc_requestedUser
+                            id = doc_id,
+                            requestMessage = doc_requestmessage,
+                            requestDate = doc_requestdate,
+                            category = doc_category,
+                            priority = doc_priority,
+                            status = doc_status,
+                            efectiveHelp = doc_efectiveHelp,
+                            efectiveDate = doc_efectiveDate,
+                            efectiveComments = doc_efectiveComments,
+                            requestUser = doc_requestedUser
                         )
                     }
             } else {
@@ -129,7 +121,7 @@ class RequestedHelpViewModel: ViewModel() {
 
     fun endedRequestHelp(
         uidRequestedHelp: String,
-        efectiveDate: Date,
+        efectiveDate: Timestamp?,
         efectiveHelp: Boolean,
         efectiveComments: String,
         onSuccess: () -> Unit,
@@ -138,7 +130,7 @@ class RequestedHelpViewModel: ViewModel() {
         viewModelScope.launch {
             val data = mapOf(
                 "efectiveHelp" to efectiveHelp,
-                "efectiveDate" to Timestamp(efectiveDate),
+                "efectiveDate" to efectiveDate,
                 "efectiveComments" to efectiveComments,
                 "status" to "Finalizada"
             )
@@ -154,6 +146,35 @@ class RequestedHelpViewModel: ViewModel() {
                     println("Error al finalizar la solicitud de ayuda: $exception")
                     onFailure(exception)
                 }
+        }
+    }
+
+    fun notificationToUsers(
+        Category: String,
+        onSuccess: () -> Unit,
+        onFailure: (Exception) -> Unit
+    ){
+        val db = Firebase.firestore
+        val docRef = db.collection("userCategory").document(Category)
+        docRef.addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                Log.w(TAG, "Listen failed.", e)
+                return@addSnapshotListener
+            }
+
+            val source = if (snapshot != null && snapshot.metadata.hasPendingWrites()) {
+                "Local"
+            } else {
+                "Server"
+            }
+
+            if (snapshot != null && snapshot.exists()) {
+                Log.d(TAG, "$source data: ${snapshot.data}")
+
+                val userId = snapshot.get("uidUser").toString()
+            } else {
+                Log.d(TAG, "$source data: null")
+            }
         }
     }
 }

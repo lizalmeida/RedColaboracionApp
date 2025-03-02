@@ -41,7 +41,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -64,6 +66,7 @@ import com.example.redcolaboracion.navigation.BottomNavItem
 import com.example.redcolaboracion.navigation.TopMenu
 import com.example.redcolaboracion.viewmodel.CategoryViewModel
 import com.example.redcolaboracion.viewmodel.ProfileViewModel
+import com.google.common.collect.Iterables.addAll
 import com.google.firebase.Firebase
 import com.google.firebase.perf.performance
 import com.google.firebase.storage.FirebaseStorage
@@ -134,16 +137,12 @@ fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController) {
     }
     val allCategories by categoryViewModel.categories.collectAsState()
     val userCategories by categoryViewModel.userCategories.collectAsState()
-    LaunchedEffect(allCategories, userCategories) {
-        println("All Categories: $allCategories")
-        println("User Categories: $userCategories")
+    val selectedCategories = remember { mutableStateListOf<Category>() }
+    LaunchedEffect(userCategories) {
+        if (selectedCategories.isEmpty() && userCategories.isNotEmpty()) {
+            selectedCategories.addAll(userCategories)
+        }
     }
-    val selectedCategoryNames = userCategories.map { it.name }.toSet()
-    //val selectedCategoryNames = remember { mutableStateOf(userCategories.map { it.name }.toSet()) }
-    println("Selected Category IDs: $selectedCategoryNames")
-
-    //var selectedCategory by remember { mutableStateOf<Category?>(null) }
-    var selectedCategories by remember { mutableStateOf(setOf<Category>()) }
 
     LaunchedEffect(Unit) {
         if (isLogged) {
@@ -279,27 +278,10 @@ fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController) {
                     .size(20.dp)
             )
             Spacer(modifier = Modifier.height(4.dp))
-            allCategories.forEach { category ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Checkbox(
-                        checked = selectedCategoryNames.contains(category.name), //cambiar para que permita modificar
-                        onCheckedChange = { isChecked ->
-                            selectedCategories = if (isChecked) {
-                                println("Category Selected: ${category.name}")
-                                selectedCategories + category
-                            } else {
-                                println("Category Deselected: ${category.name}")
-                                selectedCategories - category
-                            }
-                        }
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = category.name)
-                }
-            }
+            CategorySelection(
+                allCategories = allCategories,
+                selectedCategories = selectedCategories
+            )
 
             if (isLogged) {
                 Button(
@@ -307,7 +289,7 @@ fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController) {
                         if (email.isNotBlank() && name.isNotBlank() && lastname.isNotBlank()) {
                                 viewModel.updateUser(
                                     User(email, name, lastname, imageUrl, phone, address, location),
-                                    selectedCategories,
+                                    selectedCategories.toSet(),
                                     onSuccess = {
                                         println("Datos del usuario actualizados con éxito.")
                                         Toast.makeText(
@@ -358,7 +340,7 @@ fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController) {
                                 User(email, name, lastname, imageUrl, phone, address, location),
                                 email,
                                 password,
-                                selectedCategories,
+                                selectedCategories.toSet(),
                                 onSuccess = {
                                     println("Usuario registrado con éxito.")
                                     Toast.makeText(
@@ -401,6 +383,44 @@ fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController) {
                 ) {
                     Text("Registrar Usuario")
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun CategorySelection(
+    allCategories: List<Category>,
+    selectedCategories: SnapshotStateList<Category>
+) {
+    Column {
+        allCategories.forEach { category ->
+            val isSelected = selectedCategories.contains(category)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable {
+                        if (isSelected) {
+                            selectedCategories.remove(category)
+                        } else {
+                            selectedCategories.add(category)
+                        }
+                    }
+            ) {
+                Checkbox(
+                    checked = isSelected,
+                    onCheckedChange = { checked ->
+                        if (checked) {
+                            if (!selectedCategories.contains(category))
+                                selectedCategories.add(category)
+                        } else {
+                            selectedCategories.remove(category)
+                        }
+                    }
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(text = category.name)
             }
         }
     }

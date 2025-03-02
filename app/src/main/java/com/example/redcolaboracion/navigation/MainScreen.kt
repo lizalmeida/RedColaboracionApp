@@ -5,20 +5,13 @@ import android.os.Build
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
@@ -59,7 +52,6 @@ fun MainScreen() {
     val navController = rememberNavController()
     val isAuthenticated = remember { mutableStateOf(UserSession.userId != null) }
     val pendingRoute = remember { mutableStateOf<String?>(null) }
-    println("Esta autenticado:" + isAuthenticated)
 
     Scaffold(
         bottomBar =  { BottomTabBar(navController, isAuthenticated, pendingRoute) }
@@ -96,26 +88,8 @@ fun BottomTabBar(
                 onClick = {
                     println("Route: ${barItem.route}, needAuth: $needAuth, isAuthenticated: ${isAuthenticated.value}")
 
-                    //if (!needAuth || isAuthenticated.value) {
-                        navController.navigate(barItem.route) //{
-                            //navController.graph.startDestinationRoute.let { route ->
-                            //    if (route != null) {
-                            //        popUpTo(route) {
-                            //            saveState = true
-                            //        }
-                            //    }
-                            //}
-                            // evitar que se recomponga la misma ruta
-                            //launchSingleTop = true
-                            //restoreState = true
-                        //}
-                    //} else {
+                        navController.navigate(barItem.route)
                         pendingRoute.value = barItem.route
-                    //    navController.navigate("login"){
-                    //        launchSingleTop = true
-                    //        restoreState = true
-                    //    }
-                    //}
                 },
                 icon = {
                     Icon(
@@ -147,16 +121,11 @@ fun NavigationGraph(
                 requestedHelpId = backStackEntry.arguments?.getString(requestedHelpId) ?: "missing requestHelpId",
                 navController
             )
-/*            DetailScreen(
-                requestedHelpId = backStackEntry.arguments?.getString(requestedHelpId) ?: "missing requestHelpId",
-                navController
-            )  */
         }
 
         composable(BottomNavItem.History.route) { HistoryScreenL(navController) }
         composable("${BottomNavItem.History.route}/{section}/{$requestedHelpId}") {backStackEntry ->
             val section = backStackEntry.arguments?.getString("section")
-            println("Antes de llamar a la pantalla")
 
             when (section) {
                 "EfectiveHelp" -> {
@@ -232,31 +201,6 @@ fun GivedHelpScreenL(navController: NavController) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun DetailScreen(requestedHelpId: String, navController: NavHostController) {
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(text = requestedHelpId) },
-                navigationIcon = {
-                    IconButton(onClick = {
-                        navController.navigateUp()
-                    }) {
-                        Icon(imageVector = Icons.Outlined.ArrowBack, contentDescription = null)
-                    }
-                }
-            )
-        }
-    ) { innerPaddings ->
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .padding(innerPaddings)
-        )
-
-    }
-}
-
 @Composable
 fun HistoryScreenL(navController: NavHostController) {
     Column(
@@ -296,7 +240,6 @@ fun LoginScreenL(pendingRoute: MutableState<String?>, navController: NavHostCont
         navController,
         onLoginSuccess = {uid ->
             userId = uid.toString()
-            //isAuthenticated.value = true
             pendingRoute.value?.let { route ->
                 navController.navigate(route) // Navega a la ruta pendiente
                 pendingRoute.value = null // Resetea la ruta pendiente

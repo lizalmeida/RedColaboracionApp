@@ -44,12 +44,12 @@ import com.google.firebase.Timestamp
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun GivedHelpScreenStep2(requestedHelpId: String, navController: NavController) {
-
+/*
     val focusRequester = remember { FocusRequester() }
     // Solicitar foco automáticamente al abrir la pantalla
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
-    }
+    }*/
 
     val givedHelpViewModel: GivedHelpViewModel = viewModel()
     val uiRequestedHelp by givedHelpViewModel.UIRequestedHelp
@@ -145,8 +145,8 @@ fun GivedHelpScreenStep2(requestedHelpId: String, navController: NavController) 
                 onValueChange = { comments = it },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(10.dp)
-                    .focusRequester(focusRequester),
+                    .padding(10.dp),
+                    //.focusRequester(focusRequester),
                 label = { Text(text = "Comentarios:") },
                 shape = RoundedCornerShape(12.dp)
             )
@@ -158,7 +158,7 @@ fun GivedHelpScreenStep2(requestedHelpId: String, navController: NavController) 
                     .size(20.dp)
             )
             DateTimePickerField(
-                label = "Selecciona una fecha",
+                //label = "Selecciona una fecha",
                 onDateSelected = { timestamp ->
                     offeredDate = timestamp //stringToDate(fieldDate);
                     println("Timestamp seleccionado: $timestamp")

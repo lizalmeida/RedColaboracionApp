@@ -7,6 +7,7 @@ import android.provider.MediaStore
 import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -290,25 +291,67 @@ class ProfileViewModel: ViewModel() {
         val firestore: FirebaseFirestore = Firebase.firestore
         val userCategoryCollection = firestore.collection("userCategory")
 
-        // Iniciar una operación de escritura por cada categoría seleccionada
-        val batch = firestore.batch()
-        selectedCategories.forEach { category ->
-            val docRef = userCategoryCollection.document() // Crear un nuevo documento
-            val data = mapOf(
-                "category" to category.name,
-                "uidUser" to userId
-            )
-            batch.set(docRef, data)
+        deleteUserCategories(userId) { success ->
+            if (success) {
+                println("Categorías eliminadas correctamente.")
+                val batch = firestore.batch()
+                selectedCategories.forEach { category ->
+                    val docRef = userCategoryCollection.document() // Crear un nuevo documento
+                    val data = mapOf(
+                        "category" to category.name,
+                        "uidUser" to userId
+                    )
+                    batch.set(docRef, data)
+                }
+                // Ejecutar el batch para guardar las categorías
+                batch.commit()
+                    .addOnSuccessListener {
+                        onResult(true) // Éxito
+                    }
+                    .addOnFailureListener { e ->
+                        Log.e("ProfileViewModel", "Error al guardar categorías", e)
+                        onResult(false) // Error
+                    }
+            } else {
+                println("Error al eliminar las categorías del usuario.")
+            }
         }
-
-        // Ejecutar el batch para guardar las categorías
-        batch.commit()
-            .addOnSuccessListener {
-                onResult(true) // Éxito
-            }
-            .addOnFailureListener { e ->
-                Log.e("ProfileViewModel", "Error al guardar categorías", e)
-                onResult(false) // Error
-            }
+        // Iniciar una operación de escritura por cada categoría seleccionada
     }
+}
+
+fun deleteUserCategories(userId: String, onResult: (Boolean) -> Unit) {
+    val firestore: FirebaseFirestore = Firebase.firestore
+    val userCategoryCollection = firestore.collection("userCategory")
+
+    // Buscar los documentos que corresponden al usuario
+    userCategoryCollection
+        .whereEqualTo("uidUser", userId)
+        .get()
+        .addOnSuccessListener { querySnapshot ->
+            if (!querySnapshot.isEmpty) {
+                // Iniciar una operación de escritura por lotes
+                val batch = firestore.batch()
+                for (document in querySnapshot.documents) {
+                    batch.delete(document.reference)
+                }
+
+                // Ejecutar el batch para eliminar las categorías
+                batch.commit()
+                    .addOnSuccessListener {
+                        onResult(true) // Éxito
+                    }
+                    .addOnFailureListener { e ->
+                        Log.e("ProfileViewModel", "Error al eliminar categorías", e)
+                        onResult(false) // Error
+                    }
+            } else {
+                // No se encontraron categorías para el usuario
+                onResult(true)
+            }
+        }
+        .addOnFailureListener { e ->
+            Log.e("ProfileViewModel", "Error al buscar categorías del usuario", e)
+            onResult(false) // Error
+        }
 }
