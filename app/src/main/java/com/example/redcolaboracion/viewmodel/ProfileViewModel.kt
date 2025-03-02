@@ -57,7 +57,6 @@ class ProfileViewModel: ViewModel() {
                         .set(user)
                         .addOnSuccessListener {
                             println("Usuario registrado con éxito.")
-                            onSuccess()
                             UserSession.userId = currentUser?.uid
                             println(UserSession.userId)
                             saveUserCategories(UserSession.userId.toString(), selectedCategories) { success ->
@@ -69,6 +68,7 @@ class ProfileViewModel: ViewModel() {
                                     Log.e("ComposeScreen", "Error al guardar categorías")
                                 }
                             }
+                            onSuccess()
                         }
                         .addOnFailureListener { exception ->
                             println("Error al registrar el usuario: $exception")
@@ -204,8 +204,8 @@ class ProfileViewModel: ViewModel() {
     fun uploadImageToFirebase(photoUri: Uri, userId: String, context: Context, onResult: (String) -> Unit) : Unit{
         val storage = FirebaseStorage.getInstance()
         val photoUrl: String? = if (photoUri != null) {
-            val storageRef = storage.reference.child("profile_images/$userId.jpg")
-            val uploadTask = storageRef.putFile(photoUri)
+            val storageRef = storage.reference.child("images/$userId.jpg")
+            storageRef.putFile(photoUri)
                 .addOnSuccessListener {
                     storageRef.downloadUrl.addOnSuccessListener { downloadUrl ->
                         onResult("Upload successful! URL: $downloadUrl")
@@ -220,37 +220,6 @@ class ProfileViewModel: ViewModel() {
         } else {
             null
         }
-/*
-        storageRef.putFile(imageUri!!)
-            .addOnSuccessListener {
-                storageRef.downloadUrl.addOnSuccessListener { downloadUrl ->
-                    onResult("Upload successful! URL: $downloadUrl")
-                }
-            }
-            .addOnFailureListener { exception ->
-                onResult("Upload failed: ${exception.message}")
-            }  */
-    }
-
-    fun capturePhoto(context: Context,
-                     activityResultLauncher: ActivityResultLauncher<Uri>
-    ): Uri {
-        val photoFile = File.createTempFile("temp_photo", ".jpg", context.cacheDir).apply {
-            deleteOnExit()
-        }
-        //File(context.cacheDir, "temp_photo.jpg")
-        val photoUri = FileProvider.getUriForFile(
-            context,
-            "${context.packageName}.provider",
-            photoFile
-        )
-        //onPhotoCaptured(photoUri)
-        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE).apply {
-            putExtra(MediaStore.EXTRA_OUTPUT, photoUri)
-        }
-        activityResultLauncher.launch(photoUri)
-
-        return photoUri
     }
 
     fun renameProfileImage(

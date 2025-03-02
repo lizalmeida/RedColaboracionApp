@@ -55,6 +55,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
@@ -72,6 +73,9 @@ import com.google.firebase.perf.performance
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
 import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -84,51 +88,12 @@ fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController) {
     var phone by remember { mutableStateOf("") }
     var address by remember { mutableStateOf("") }
     var location by remember { mutableStateOf("") }
-    val temporaryImageUri = remember { mutableStateOf<Uri?>(null) }
-    var imageUri by remember { mutableStateOf<Uri?>(null) }
     var imageUrl by remember { mutableStateOf<String?>(null) }
-    var imageFile by remember { mutableStateOf<String?>(null) }
-    var photoUri by remember { mutableStateOf<Uri?>(null) }
     val context = LocalContext.current
-    var capturedBitmap by remember { mutableStateOf<Bitmap?>(null) }
     var isLogged = UserSession.userId != null
-    val userId = UserSession.userId.toString()
-    val photoUriState = remember { mutableStateOf<Uri?>(null) }
     val scrollState = rememberScrollState()
-
-    val uiState by viewModel.uiState
-    LaunchedEffect(uiState) {
-        if (isLogged) {
-            uiState?.let { user ->
-                email = user.email
-                name = user.name
-                lastname = user.lastname
-                imageUrl = user.imageUrl
-                phone = user.phone
-                address = user.address
-                location = user.location
-            }
-        }
-    }
-
-    val photoLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
-            success ->
-        if (!success) photoUri = null
-    }
-
-    val launcher = rememberLauncherForActivityResult(
-        ActivityResultContracts.TakePicture()) { success ->
-        if (success) {
-            println("PhotoCapture" + "Foto capturada correctamente: ") // ${photoUriState.value}")
-        } else {
-            println("PhotoCapture" + "Error al capturar la foto")
-        }
-    }
-
-    fun createTempImageFile(context: Context): Uri {
-        val tempFile = File.createTempFile("profile_photo", ".jpg", context.getExternalFilesDir(Environment.DIRECTORY_PICTURES))
-        return Uri.fromFile(tempFile)
-    }
+    var profilePicUri by remember { mutableStateOf<Uri?>(null) }
+    val navBackStackEntry = navController.currentBackStackEntry
 
     val categoryViewModel: CategoryViewModel = viewModel()
     LaunchedEffect(Unit) {
@@ -144,10 +109,35 @@ fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController) {
         }
     }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(navBackStackEntry) {
+        // Intentamos recuperar el URI pasado por navegación
+        val uriString = navBackStackEntry?.savedStateHandle?.get<String>("photoUri")
+
+        // Si uriString es nulo o vacío, se procede a leer desde storage
+        if (uriString.isNullOrEmpty()) {
+            val userId = UserSession.userId.toString()
+            viewModel.readUser(userId)
+            imageUrl = imageUrl ?: viewModel.getUserProfileImageUrl(userId)
+            imageUrl?.let {
+                profilePicUri = Uri.parse(it)
+            }
+        } else {
+            // Si existe un valor, lo parseamos
+            profilePicUri = Uri.parse(uriString)
+        }
+    }
+    val uiState by viewModel.uiState
+    LaunchedEffect(uiState) {
         if (isLogged) {
-            viewModel.readUser(UserSession.userId.toString())
-            imageUrl = imageUrl ?: viewModel.getUserProfileImageUrl(UserSession.userId.toString())
+            uiState?.let { user ->
+                email = user.email
+                name = user.name
+                lastname = user.lastname
+                imageUrl = user.imageUrl
+                phone = user.phone
+                address = user.address
+                location = user.location
+            }
         }
     }
 
@@ -165,29 +155,20 @@ fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController) {
                 .padding(vertical = 40.dp)
                 .verticalScroll(scrollState)
         ) {
-            if (imageUrl != null || temporaryImageUri.value != null) {
-                val imageUri = temporaryImageUri.value ?: imageUrl?.let { Uri.parse(it) }
-                println("ImageUrl: " + imageUrl)
-                println("temporaryImageUri: " + temporaryImageUri)
-                println("ImageUri: " + imageUri.toString())
-
+            profilePicUri?.let {
                 Image(
-                    //model = imageUri,
-                    painter = rememberAsyncImagePainter(imageUri),
+                    painter = rememberAsyncImagePainter(it),
                     contentDescription = "Profile Picture",
                     modifier = Modifier
                         .size(180.dp)
                         .clip(CircleShape)
                         .background(Color.Gray)
                 )
-            } else {
-                Button(onClick = {
-                    val tempUri = createTempImageFile(context)
-                    photoUri = tempUri
-                    photoLauncher.launch(tempUri)
-                }) {
-                    Text("Tomar Foto")
-                }
+            }
+            Button(onClick = {
+                navController.navigate("camera") //CameraPreview(navController)
+            }) {
+                Text("Tomar Foto Principal")
             }
 
             Spacer(modifier = Modifier.height(2.dp))
@@ -287,27 +268,37 @@ fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController) {
                 Button(
                     onClick = {
                         if (email.isNotBlank() && name.isNotBlank() && lastname.isNotBlank()) {
-                                viewModel.updateUser(
-                                    User(email, name, lastname, imageUrl, phone, address, location),
-                                    selectedCategories.toSet(),
-                                    onSuccess = {
-                                        println("Datos del usuario actualizados con éxito.")
-                                        Toast.makeText(
-                                            context,
-                                            "Datos del usuario actualizados con éxito.",
-                                            Toast.LENGTH_SHORT
-                                        ).show()
-                                        //navigationController.navigate(BottomNavItem.History.route)
-                                    },
-                                    onFailure = { exception ->
-                                        println("Error al actualizar los datos del usuario: $exception")
-                                        Toast.makeText(
-                                            context,
-                                            "Error al actualizar los datos del usuario: ${exception.message}",
-                                            Toast.LENGTH_LONG
-                                        ).show()
+
+                            viewModel.updateUser(
+                                User(email, name, lastname, imageUrl, phone, address, location),
+                                selectedCategories.toSet(),
+                                onSuccess = {
+                                    println("Usuario: " + UserSession.userId.toString())
+                                    profilePicUri?.let {
+                                        viewModel.uploadImageToFirebase (
+                                            photoUri = profilePicUri!!,
+                                            userId = UserSession.userId.toString(),
+                                            context = context,
+                                            onResult = {}
+                                        )
                                     }
-                                )
+                                    println("Datos del usuario actualizados con éxito.")
+                                    Toast.makeText(
+                                        context,
+                                        "Datos del usuario actualizados con éxito.",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    //navigationController.navigate(BottomNavItem.History.route)
+                                },
+                                onFailure = { exception ->
+                                    println("Error al actualizar los datos del usuario: $exception")
+                                    Toast.makeText(
+                                        context,
+                                        "Error al actualizar los datos del usuario: ${exception.message}",
+                                        Toast.LENGTH_LONG
+                                    ).show()
+                                }
+                            )
                         } else {
                             println("Por favor, completa todos los campos.")
                             Toast.makeText(
@@ -328,20 +319,22 @@ fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController) {
                         profileScreenTrace.start()
 
                         if (email.isNotBlank() && password.isNotBlank() && name.isNotBlank() && lastname.isNotBlank()) {
-                            /* viewModel.renameProfileImage(
-                                onSuccess = {
-                                    println("Imagen renombrada y movida con éxito.")
-                                },
-                                onFailure = { error ->
-                                    println("Error al renombrar la imagen: ${error.message}")
-                                }
-                            ) */
+
                             viewModel.registerUser(
                                 User(email, name, lastname, imageUrl, phone, address, location),
                                 email,
                                 password,
                                 selectedCategories.toSet(),
                                 onSuccess = {
+                                    println("Usuario register: " + UserSession.userId.toString())
+                                    profilePicUri?.let {
+                                        viewModel.uploadImageToFirebase (
+                                            photoUri = profilePicUri!!,
+                                            userId = UserSession.userId.toString(),
+                                            context = context,
+                                            onResult = {}
+                                        )
+                                    }
                                     println("Usuario registrado con éxito.")
                                     Toast.makeText(
                                         context,
@@ -359,15 +352,9 @@ fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController) {
                                     ).show()
                                 }
                             )
-                            photoUri?.let {
-                                viewModel.uploadImageToFirebase (
-                                    photoUri = photoUri!!,
-                                    userId = userId,
-                                    context = context,
-                                    onResult = {}
-                                )
-                            }
+
                             profileScreenTrace.stop()
+
                         } else {
                             println("Por favor, completa todos los campos.")
                             Toast.makeText(
@@ -435,6 +422,7 @@ suspend fun getImageFromFirebase(path: String): String? {
         null
     }
 }
+
 
 /*
 @Preview(showBackground = true)

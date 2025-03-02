@@ -2,7 +2,9 @@ package com.example.redcolaboracion.view
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
 import android.net.Uri
+import android.os.Environment
 import android.util.Log
 import android.view.ViewGroup
 import androidx.camera.core.CameraSelector
@@ -21,6 +23,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.content.FileProvider
 import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavController
 import com.example.redcolaboracion.navigation.BottomNavItem
@@ -35,12 +38,16 @@ import com.google.firebase.storage.storage
 @OptIn(ExperimentalPermissionsApi::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun CameraPreview(navController: NavController) {
+
+fun CameraPreview(navController: NavController){
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
     val cameraController = remember {
-        LifecycleCameraController(context)
+        LifecycleCameraController(context) /*.apply {
+            bindToLifecycle(lifecycleOwner)
+            this.cameraSelector = cameraSelector
+        }*/
     }
 
     val permissionState = rememberPermissionState(permission = Manifest.permission.CAMERA)
@@ -56,8 +63,12 @@ fun CameraPreview(navController: NavController) {
         Button(
             onClick = {
                 val executor = ContextCompat.getMainExecutor(context)
-                takePicture(cameraController, executor, navController)
-                      },
+                takePicture(
+                    cameraController = cameraController,
+                    executor = executor,
+                    navController = navController,
+                    context = context
+                ) },
             modifier = Modifier
                 .padding(16.dp)
         ) {
@@ -71,27 +82,36 @@ fun CameraPreview(navController: NavController) {
     }
 }
 
-private fun takePicture(cameraController: LifecycleCameraController, executor: Executor, navController: NavController){
+fun takePicture(cameraController: LifecycleCameraController, executor: Executor, navController: NavController, context: Context){
     val TAG = "takePicture"
     val file = File.createTempFile("foto_perfil",".jpg")
-    val outputDirectory = ImageCapture.OutputFileOptions.Builder(file).build()
-    val storageRef = Firebase.storage.reference
-    val photoRef = storageRef.child("images/foto_perfil.jpg")
+    //val outputDirectory = ImageCapture.OutputFileOptions.Builder(file).build()
+    //val storageRef = Firebase.storage.reference
+    //val photoRef = storageRef.child("images/foto_perfil.jpg")
+    //val photoFile = File.createTempFile("foto_perfil", ".jpg", context.getExternalFilesDir(Environment.DIRECTORY_PICTURES))
+    val photoFile = File.createTempFile("foto_perfil", ".jpg", context.getFilesDir())
+    val photoURI: Uri = FileProvider.getUriForFile(context, "com.example.redcolaboracion.provider", photoFile)
 
-    cameraController.takePicture(outputDirectory, executor, object: ImageCapture.OnImageSavedCallback{
-        override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-            cameraController.unbind()
-            val uploadTask = photoRef.putFile(Uri.fromFile(file))
-            uploadTask.addOnSuccessListener {
-                navController.navigate(BottomNavItem.Profile.route)
-            }.addOnFailureListener { exception ->
+    println("directorio temporal: " +  context.getFilesDir())
+    println("archivo: " + photoURI.toString())
+    val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
+
+    cameraController.takePicture(
+        outputOptions,
+        executor,
+        object : ImageCapture.OnImageSavedCallback {
+            override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
+                // La imagen se ha guardado exitosamente en photoFile
+                cameraController.unbind()
+                navController.previousBackStackEntry?.savedStateHandle?.set("photoUri", photoURI.toString())
+                navController.popBackStack()
+            }
+
+            override fun onError(exception: ImageCaptureException) {
                 Log.e(TAG, "Error al tomar la foto: $exception")
             }
         }
-        override fun onError(exception: ImageCaptureException) {
-            Log.e(TAG, "Error al tomar la foto: $exception")
-        }
-    })
+    )
 }
 
 @Composable
