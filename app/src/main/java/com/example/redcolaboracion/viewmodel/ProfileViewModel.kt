@@ -166,8 +166,9 @@ class ProfileViewModel: ViewModel() {
     }
 
     suspend fun getUserProfileImageUrl(userId: String): String? {
+        println("profile_picture: " + userId)
         return try {
-            val storageRef = Firebase.storage.reference.child("images/$userId.jpg")
+            val storageRef = Firebase.storage.reference.child("profile_pictures/$userId.jpg")
             storageRef.downloadUrl.await().toString()
         } catch (e: Exception) {
             Log.e(TAG, "Referencia: No recupera el archivo de imagen", e)
@@ -177,7 +178,7 @@ class ProfileViewModel: ViewModel() {
 
     fun uploadImageToFirebase(photoUri: Uri, userId: String, onResult: (String) -> Unit) {
         val storage = FirebaseStorage.getInstance()
-        val storageRef = storage.reference.child("images/$userId.jpg")
+        val storageRef = storage.reference.child("profile_pictures/$userId.jpg")
         storageRef.putFile(photoUri)
             .addOnSuccessListener {
                 storageRef.downloadUrl.addOnSuccessListener { downloadUrl ->

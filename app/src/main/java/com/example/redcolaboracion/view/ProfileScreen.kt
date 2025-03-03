@@ -20,8 +20,15 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Face
+import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -146,10 +153,13 @@ fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController) {
                         .background(Color.Gray)
                 )
             }
-            Button(onClick = {
-                navController.navigate("camera")
-            }) {
-                Text("Tomar Foto Principal")
+            Button(onClick = {navController.navigate("camera")},
+                shape = CircleShape,
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.PhotoCamera,
+                    contentDescription = "Ícono de cámara"
+                )
             }
 
             Spacer(modifier = Modifier.height(2.dp))
