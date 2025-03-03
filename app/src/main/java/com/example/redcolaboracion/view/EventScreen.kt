@@ -2,7 +2,6 @@ package com.example.redcolaboracion.view
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,7 +20,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -30,7 +28,6 @@ import com.example.redcolaboracion.viewmodel.EventViewModel
 import com.example.redcolaboracion.model.Event
 import com.example.redcolaboracion.navigation.TopMenu
 import com.example.redcolaboracion.ui.theme.Purple40
-import com.example.redcolaboracion.ui.theme.Purple80
 import com.google.firebase.Firebase
 import com.google.firebase.perf.performance
 
@@ -63,7 +60,6 @@ fun EventScreen(viewModel: EventViewModel, navController: NavController) {
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                //verticalArrangement = Arrangement.Top,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Box(
@@ -80,7 +76,7 @@ fun EventScreen(viewModel: EventViewModel, navController: NavController) {
                 }
             }
             Spacer(modifier = Modifier.height(2.dp))
-            // Mostrar la lista de eventos
+
             LazyColumn (
                 modifier = Modifier.weight(1f)
             ) {

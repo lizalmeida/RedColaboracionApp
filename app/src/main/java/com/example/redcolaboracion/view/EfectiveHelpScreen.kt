@@ -1,6 +1,7 @@
 package com.example.redcolaboracion.view
 
 import android.annotation.SuppressLint
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -41,6 +42,7 @@ import com.google.firebase.Timestamp
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun EfectiveHelpScreen(requestedHelpId: String, navController: NavController) {
+    val TAG = "EfectiveHelpScreen"
     val requestedHelpViewModel: RequestedHelpViewModel = viewModel()
     val uiRequestedHelp by requestedHelpViewModel.UIRequestedHelp
 
@@ -57,7 +59,6 @@ fun EfectiveHelpScreen(requestedHelpId: String, navController: NavController) {
     }
     val context = LocalContext.current
 
-    // Ejecutar la lectura del documento cuando se cargue la pantalla
     LaunchedEffect(requestedHelpId) {
         requestedHelpViewModel.readRequestedHelp(requestedHelpId)
     }
@@ -79,34 +80,31 @@ fun EfectiveHelpScreen(requestedHelpId: String, navController: NavController) {
         ) {
             Box(
                 modifier = Modifier
-                    .fillMaxWidth() // Set the size of the Box
+                    .fillMaxWidth()
                     .border(
-                        width = 2.dp,                // Border thickness
-                        color = Color.Blue,           // Border color
-                        shape = RoundedCornerShape(16.dp) // Rounded corners with 16.dp radius
+                        width = 2.dp,
+                        color = Color.Blue,
+                        shape = RoundedCornerShape(16.dp)
                     )
-                    .padding(16.dp) // Optional padding inside the Box
+                    .padding(16.dp)
             ) {
                 Column(
-                    modifier = Modifier.fillMaxWidth() // Fill the Box space
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
                         text = "Categoría: ${uiRequestedHelp.category}",
-                        //text = "Categoría: Víveres",
                         fontSize = 14.sp,
                         modifier = Modifier
                             .padding(vertical = 8.dp)
                     )
                     Text(
                         text = "Fecha Solicitud: ${uiRequestedHelp.requestDate}",
-                        //text = "Fecha Solicitud: 08/11/2024",
                         fontSize = 14.sp,
                         modifier = Modifier
                             .padding(vertical = 8.dp)
                     )
                     Text(
                         text = "Detalle: \$${uiRequestedHelp.requestMessage}",
-                        //text = "Detalle: No tengo trabajo desde hace 3 meses, ayúdenme con comida para mi familia.",
                         fontSize = 14.sp,
                         modifier = Modifier
                             .padding(vertical = 8.dp)
@@ -137,7 +135,10 @@ fun EfectiveHelpScreen(requestedHelpId: String, navController: NavController) {
                 ) {
                     RadioButton(
                         selected = selectedOption == "SI",
-                        onClick = { selectedOption = "SI" }
+                        onClick = {
+                            selectedOption = "SI"
+                            efectiveHelp = true
+                        }
                     )
                     Text(text = "SI recibí la ayuda")
                 }
@@ -146,7 +147,10 @@ fun EfectiveHelpScreen(requestedHelpId: String, navController: NavController) {
                 ){
                     RadioButton(
                         selected = selectedOption == "NO",
-                        onClick = { selectedOption = "NO" }
+                        onClick = {
+                            selectedOption = "NO"
+                            efectiveHelp = false
+                        }
                     )
                     Text(text = "NO recibí la ayuda")
                 }
@@ -160,9 +164,8 @@ fun EfectiveHelpScreen(requestedHelpId: String, navController: NavController) {
                     .size(20.dp)
             )
             DateTimePickerField(
-                //label = "Selecciona una fecha",
                 onDateSelected = { timestamp ->
-                    efectiveDate = timestamp //stringToDate(fieldDate);
+                    efectiveDate = timestamp
                     println("Timestamp seleccionado: $timestamp")
                 }
             )
@@ -186,7 +189,7 @@ fun EfectiveHelpScreen(requestedHelpId: String, navController: NavController) {
 
             Button(
                 onClick = {
-                    if (efectiveComments.isNotBlank()) {  // && efectiveDate.isNotBlank()
+                    if (efectiveComments.isNotBlank()) {
                         efectiveDate?.let {
                             requestedHelpViewModel.endedRequestHelp(
                                 uidRequestedHelp = requestedHelpId,
@@ -194,7 +197,7 @@ fun EfectiveHelpScreen(requestedHelpId: String, navController: NavController) {
                                 efectiveHelp = efectiveHelp,
                                 efectiveComments = efectiveComments,
                                 onSuccess = {
-                                    println("Ayuda finalizada con éxito.")
+                                    Log.i(TAG, "Ayuda ofrecida guardada con éxito.")
                                     Toast.makeText(
                                         context,
                                         "Ayuda ofrecida guardada con éxito.",
@@ -203,7 +206,7 @@ fun EfectiveHelpScreen(requestedHelpId: String, navController: NavController) {
                                     navController.navigate(BottomNavItem.History.route)
                                 }
                             ) { exception ->
-                                println("Error al enviar ayuda ofrecida: $exception")
+                                Log.e(TAG, "Error al enviar ayuda ofrecida. ", exception)
                                 Toast.makeText(
                                     context,
                                     "Error al enviar ayuda ofrecida: ${exception.message}",

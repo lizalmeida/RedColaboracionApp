@@ -21,7 +21,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -40,16 +39,16 @@ fun RequestedHelpList(viewModel: RequestedHelpListViewModel, navController: NavC
     profileScreenTrace.start()
 
     LaunchedEffect(Unit) {
-        viewModel.readEvent(userId = UserSession.userId)   //Lista mis solicitudes
+        viewModel.readEvent(userId = UserSession.userId)
     }
 
-    Scaffold() {
+    Scaffold {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(8.dp)
         ) {
-            Row(){
+            Row{
                 Text(text = "",
                     modifier = Modifier.width(20.dp)
                 )
@@ -63,7 +62,6 @@ fun RequestedHelpList(viewModel: RequestedHelpListViewModel, navController: NavC
                         .width(80.dp)
                         .padding (horizontal = 2.dp)
                 )
-                //Spacer(modifier = Modifier.weight(1f))
                 Text(text = "Prioridad",
                     modifier = Modifier
                         .padding (horizontal = 2.dp)
@@ -77,7 +75,7 @@ fun RequestedHelpList(viewModel: RequestedHelpListViewModel, navController: NavC
             }
             Spacer(modifier = Modifier.height(2.dp))
             Divider()
-            // Mostrar la lista de ayudas
+
             LazyColumn (
                 modifier = Modifier.weight(1f)
             ) {
@@ -85,7 +83,6 @@ fun RequestedHelpList(viewModel: RequestedHelpListViewModel, navController: NavC
                     val requestedHelp = viewModel.uiRequestedHelpList[currentRequestedHelp]
                     RequestedHelpRow(requestedHelp){ requestedHelpId ->
                         navController.navigate("${BottomNavItem.History.route}/EfectiveHelp/$requestedHelpId")
-                        println("Navega a History/id" + requestedHelpId + "${BottomNavItem.History.route}/$requestedHelpId")
                     }
                     Divider()
                 }

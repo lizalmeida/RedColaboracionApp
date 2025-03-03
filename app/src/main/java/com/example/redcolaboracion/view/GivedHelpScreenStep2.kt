@@ -28,8 +28,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.sp
@@ -44,13 +42,6 @@ import com.google.firebase.Timestamp
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun GivedHelpScreenStep2(requestedHelpId: String, navController: NavController) {
-/*
-    val focusRequester = remember { FocusRequester() }
-    // Solicitar foco automáticamente al abrir la pantalla
-    LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
-    }*/
-
     val givedHelpViewModel: GivedHelpViewModel = viewModel()
     val uiRequestedHelp by givedHelpViewModel.UIRequestedHelp
 
@@ -62,10 +53,10 @@ fun GivedHelpScreenStep2(requestedHelpId: String, navController: NavController) 
     }
     val context = LocalContext.current
 
-    // Ejecutar la lectura del documento cuando se cargue la pantalla
     LaunchedEffect(requestedHelpId) {
         givedHelpViewModel.readRequestedHelp(requestedHelpId)
     }
+
     Scaffold(
         topBar = {
             TopMenu(
@@ -146,7 +137,6 @@ fun GivedHelpScreenStep2(requestedHelpId: String, navController: NavController) 
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(10.dp),
-                    //.focusRequester(focusRequester),
                 label = { Text(text = "Comentarios:") },
                 shape = RoundedCornerShape(12.dp)
             )
@@ -158,21 +148,18 @@ fun GivedHelpScreenStep2(requestedHelpId: String, navController: NavController) 
                     .size(20.dp)
             )
             DateTimePickerField(
-                //label = "Selecciona una fecha",
                 onDateSelected = { timestamp ->
-                    offeredDate = timestamp //stringToDate(fieldDate);
-                    println("Timestamp seleccionado: $timestamp")
+                    offeredDate = timestamp
                 }
             )
             Button(
                 onClick = {
-                    if (comments.isNotBlank() ) { //&& DateTimePickerField.isNotBlank()
+                    if (comments.isNotBlank() ) {
                         offeredDate?.let {
                             givedHelpViewModel.saveGivedHelp(
                                 uidRequestedHelp = requestedHelpId,
                                 comments = comments,
                                 offeredDate = offeredDate!!,
-                                givedDate = offeredDate!!,
                                 uidUser = UserSession.userId.toString(),
                                 onSuccess = {
                                     println("Ayuda ofrecida guardada con éxito.")

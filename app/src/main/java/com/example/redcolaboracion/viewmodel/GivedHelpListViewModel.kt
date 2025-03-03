@@ -1,5 +1,6 @@
 package com.example.redcolaboracion.viewmodel
 
+import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import com.example.redcolaboracion.model.RequestedHelp
@@ -23,53 +24,46 @@ class GivedHelpListViewModel: ViewModel() {
             .whereEqualTo("uidUser", UserSession.userId)
             .get()
             .addOnSuccessListener { result ->
-            val source = if (result != null && result.metadata.hasPendingWrites()) {
-                "Local"
-            } else {
-                "Server"
-            }
 
             uiGivedHelpList.clear()
             for (doc in result) {
-                val doc_uidRequestedHelp = doc["uidRequestedHelp"].toString()
-                println("Id de la ayuda que se realiza: $doc_uidRequestedHelp")
+                val docUidRequestedHelp = doc["uidRequestedHelp"].toString()
 
-                db.collection("requestedHelp").document(doc_uidRequestedHelp).get()
+                db.collection("requestedHelp").document(docUidRequestedHelp).get()
                     .addOnSuccessListener { requestedDoc ->
+                        Log.i(TAG, "Lista de ayudas recuperadas con éxito.")
 
-                        val doc_uidUser = requestedDoc["userId"].toString()
-                        println("Usuario al que se da la ayuda: $doc_uidUser")
-
-                        db.collection("users").document(doc_uidUser).get()
+                        val docUidUser = requestedDoc["userId"].toString()
+                        db.collection("users").document(docUidUser).get()
                             .addOnSuccessListener { userDoc ->
-                                val doc_requestedUser = userDoc["name"].toString() + " " + userDoc["lastname"].toString()
-                                val doc_requestmessage = requestedDoc["message"].toString()
-                                val doc_requestdate_stamp: Timestamp = requestedDoc["requestDate"] as Timestamp
-                                val doc_requestdate = formato.format(doc_requestdate_stamp.toDate()).toString()
-                                val doc_category = requestedDoc["category"].toString()
-                                val doc_priority = requestedDoc["priority"].toString()
-                                val doc_status = requestedDoc["status"].toString()
-                                val doc_efectiveHelp = requestedDoc["efectiveHelp"].toString()
-                                val doc_efectiveDate_stamp: Timestamp = requestedDoc["efectiveDate"] as Timestamp
-                                val doc_efectiveDate = formato.format(doc_efectiveDate_stamp.toDate()).toString()
-                                val RequestedHelp1 = RequestedHelp(
-                                    requestMessage = doc_requestmessage,
-                                    requestDate = doc_requestdate,
-                                    category = doc_category,
-                                    priority = doc_priority,
-                                    status = doc_status,
-                                    efectiveHelp = doc_efectiveHelp,
-                                    efectiveDate = doc_efectiveDate,
-                                    requestUser = doc_requestedUser,
-                                    requestUserId = doc_uidUser
+                                val docRequestedUser = userDoc["name"].toString() + " " + userDoc["lastname"].toString()
+                                val docRequestmessage = requestedDoc["message"].toString()
+                                val docRequestdateStamp: Timestamp = requestedDoc["requestDate"] as Timestamp
+                                val docRequestdate = formato.format(docRequestdateStamp.toDate()).toString()
+                                val docCategory = requestedDoc["category"].toString()
+                                val docPriority = requestedDoc["priority"].toString()
+                                val docStatus = requestedDoc["status"].toString()
+                                val docEfectiveHelp = requestedDoc["efectiveHelp"].toString()
+                                val docEfectiveDateStamp: Timestamp = requestedDoc["efectiveDate"] as Timestamp
+                                val docEfectiveDate = formato.format(docEfectiveDateStamp.toDate()).toString()
+                                val requestedHelp1 = RequestedHelp(
+                                    requestMessage = docRequestmessage,
+                                    requestDate = docRequestdate,
+                                    category = docCategory,
+                                    priority = docPriority,
+                                    status = docStatus,
+                                    efectiveHelp = docEfectiveHelp,
+                                    efectiveDate = docEfectiveDate,
+                                    requestUser = docRequestedUser,
+                                    requestUserId = docUidUser
                                 )
-                                uiGivedHelpList.add(RequestedHelp1)
+                                uiGivedHelpList.add(requestedHelp1)
                             }
                     }
                 }
             }
             .addOnFailureListener { exception ->
-                println("Error al obtener las ayudas realizadas: $exception")
+                Log.e(TAG, "Error al obtener las ayudas realizadas. ", exception)
             }
     }
 }

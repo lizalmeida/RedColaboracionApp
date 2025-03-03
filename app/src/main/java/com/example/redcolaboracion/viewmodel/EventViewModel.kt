@@ -28,7 +28,7 @@ class EventViewModel: ViewModel() {
             }
 
             if (documents != null && !documents.isEmpty) {
-                Log.d(TAG, "Eventos recuperados con éxito.")
+                Log.i(TAG, "Eventos recuperados con éxito.")
 
                 uiEventsList.clear()
                 for (doc in documents) {

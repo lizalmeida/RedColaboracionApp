@@ -1,19 +1,12 @@
 package com.example.redcolaboracion.view
 
 import android.annotation.SuppressLint
-import android.content.Context
-import android.graphics.Bitmap
 import android.net.Uri
-import android.os.Environment
 import android.util.Log
 import android.widget.Toast
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -29,7 +22,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -39,7 +31,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.setValue
@@ -47,18 +38,13 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.FileProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import com.example.redcolaboracion.model.Category
 import com.example.redcolaboracion.model.User
@@ -67,20 +53,15 @@ import com.example.redcolaboracion.navigation.BottomNavItem
 import com.example.redcolaboracion.navigation.TopMenu
 import com.example.redcolaboracion.viewmodel.CategoryViewModel
 import com.example.redcolaboracion.viewmodel.ProfileViewModel
-import com.google.common.collect.Iterables.addAll
 import com.google.firebase.Firebase
 import com.google.firebase.perf.performance
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
-import java.io.File
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController) {
-
+    val TAG = "ProfileScreen"
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var name by remember { mutableStateOf("") }
@@ -129,7 +110,7 @@ fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController) {
     val uiState by viewModel.uiState
     LaunchedEffect(uiState) {
         if (isLogged) {
-            uiState?.let { user ->
+            uiState.let { user ->
                 email = user.email
                 name = user.name
                 lastname = user.lastname
@@ -166,7 +147,7 @@ fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController) {
                 )
             }
             Button(onClick = {
-                navController.navigate("camera") //CameraPreview(navController)
+                navController.navigate("camera")
             }) {
                 Text("Tomar Foto Principal")
             }
@@ -195,7 +176,6 @@ fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController) {
                 )
                 Button(
                     onClick = {
-                        // Envía la contraseña al correo
                         viewModel.sendPasswordToEmail(email)
                         Toast.makeText(context, "Contraseña enviada al correo", Toast.LENGTH_SHORT).show()
                     },
@@ -242,14 +222,6 @@ fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController) {
                     .padding(4.dp),
                 label = { Text(text = "Dirección") },
                 shape = RoundedCornerShape(12.dp))
-/*            TextField(
-                value = location,
-                onValueChange = { location = it },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(4.dp),
-                label = { Text(text = "Ubicación") },
-                shape = RoundedCornerShape(12.dp)) */
 
             Spacer(modifier = Modifier.height(8.dp))
             Text(
@@ -273,25 +245,22 @@ fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController) {
                                 User(email, name, lastname, imageUrl, phone, address, location),
                                 selectedCategories.toSet(),
                                 onSuccess = {
-                                    println("Usuario: " + UserSession.userId.toString())
                                     profilePicUri?.let {
                                         viewModel.uploadImageToFirebase (
                                             photoUri = profilePicUri!!,
                                             userId = UserSession.userId.toString(),
-                                            context = context,
                                             onResult = {}
                                         )
                                     }
-                                    println("Datos del usuario actualizados con éxito.")
+                                    Log.i(TAG,"Datos del usuario actualizados con éxito.")
                                     Toast.makeText(
                                         context,
                                         "Datos del usuario actualizados con éxito.",
                                         Toast.LENGTH_SHORT
                                     ).show()
-                                    //navigationController.navigate(BottomNavItem.History.route)
                                 },
                                 onFailure = { exception ->
-                                    println("Error al actualizar los datos del usuario: $exception")
+                                    Log.e(TAG,"Error al actualizar los datos del usuario. ", exception)
                                     Toast.makeText(
                                         context,
                                         "Error al actualizar los datos del usuario: ${exception.message}",
@@ -300,7 +269,6 @@ fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController) {
                                 }
                             )
                         } else {
-                            println("Por favor, completa todos los campos.")
                             Toast.makeText(
                                 context,
                                 "Por favor, completa todos los campos.",
@@ -326,16 +294,14 @@ fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController) {
                                 password,
                                 selectedCategories.toSet(),
                                 onSuccess = {
-                                    println("Usuario register: " + UserSession.userId.toString())
                                     profilePicUri?.let {
                                         viewModel.uploadImageToFirebase (
                                             photoUri = profilePicUri!!,
                                             userId = UserSession.userId.toString(),
-                                            context = context,
                                             onResult = {}
                                         )
                                     }
-                                    println("Usuario registrado con éxito.")
+                                    Log.i(TAG, "Usuario registrado con éxito.")
                                     Toast.makeText(
                                         context,
                                         "Usuario registrado con éxito.",
@@ -344,7 +310,7 @@ fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController) {
                                     navController.navigate(BottomNavItem.Home.route)
                                 },
                                 onFailure = { exception ->
-                                    println("Error al registrar el usuario: $exception")
+                                    Log.e(TAG, "Error al registrar el usuario", exception)
                                     Toast.makeText(
                                         context,
                                         "Error al registrar el usuario: ${exception.message}",
@@ -356,7 +322,6 @@ fun ProfileScreen(viewModel: ProfileViewModel, navController: NavController) {
                             profileScreenTrace.stop()
 
                         } else {
-                            println("Por favor, completa todos los campos.")
                             Toast.makeText(
                                 context,
                                 "Por favor, completa todos los campos.",
@@ -422,7 +387,6 @@ suspend fun getImageFromFirebase(path: String): String? {
         null
     }
 }
-
 
 /*
 @Preview(showBackground = true)

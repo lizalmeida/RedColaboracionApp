@@ -1,5 +1,7 @@
 package com.example.redcolaboracion.view
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
@@ -11,6 +13,7 @@ import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun SplashScreen() {
     LaunchedEffect(key1 = true) {
@@ -18,6 +21,7 @@ fun SplashScreen() {
     }
     Splash()
 }
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun Splash(){
     var isVisible by remember { mutableStateOf(true) }
@@ -35,7 +39,6 @@ fun Splash(){
     LaunchedEffect(Unit) {
         auth.signOut()  // Forzar logout al entrar al login
     }
-    println("Usuario en SplashScreen: " + auth.currentUser)
 
     if (isVisible) {
         Image(
@@ -47,6 +50,7 @@ fun Splash(){
         MainScreen()
     }
 }
+@RequiresApi(Build.VERSION_CODES.O)
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun PreviewSplashScreen() {

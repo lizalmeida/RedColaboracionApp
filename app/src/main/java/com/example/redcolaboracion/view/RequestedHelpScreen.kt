@@ -2,6 +2,7 @@ package com.example.redcolaboracion.view
 
 import android.annotation.SuppressLint
 import android.os.Build
+import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
@@ -29,17 +30,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import com.example.redcolaboracion.model.Category
 import com.example.redcolaboracion.model.UserSession
 import com.example.redcolaboracion.navigation.BottomNavItem
 import com.example.redcolaboracion.navigation.TopMenu
 import com.example.redcolaboracion.viewmodel.CategoryViewModel
-import com.example.redcolaboracion.viewmodel.GivedHelpViewModel
 import com.example.redcolaboracion.viewmodel.RequestedHelpViewModel
 import java.time.LocalDate
 import java.time.ZoneId
@@ -49,7 +47,7 @@ import java.util.Date
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun RequestedHelpScreen(viewModel: RequestedHelpViewModel, navController: NavController) {
-
+    val TAG = "RequestedHelpScreen"
     val categoryViewModel: CategoryViewModel = viewModel()
     val categories by categoryViewModel.categories.collectAsState()
     LaunchedEffect(Unit) {
@@ -62,17 +60,10 @@ fun RequestedHelpScreen(viewModel: RequestedHelpViewModel, navController: NavCon
     }
     var selectedPriority by remember { mutableStateOf("1") }
 
-    //val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-    //val currentDateAndTime_sdf = sdf.format(Date())
-    //val currentDateAndTime = LocalDate.parse(currentDateAndTime_sdf, formatter)
-
     val currentDateAndTime = Date()
-    //val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-    //val efectiveDateL = LocalDate.parse("2030-01-01 12:00:00", formatter)
-
-    val defaultZoneId = ZoneId.systemDefault();
-    val localDate = LocalDate.of(2030, 1, 1);
-    val efectiveDate = Date.from(localDate.atStartOfDay(defaultZoneId).toInstant());
+    val defaultZoneId = ZoneId.systemDefault()
+    val localDate = LocalDate.of(2030, 1, 1)
+    val efectiveDate = Date.from(localDate.atStartOfDay(defaultZoneId).toInstant())
 
     val context = LocalContext.current
 
@@ -157,7 +148,7 @@ fun RequestedHelpScreen(viewModel: RequestedHelpViewModel, navController: NavCon
             // Botón de envío
             Button(
                 onClick = {
-                    if (selectedCategory != null && selectedPriority != null && requestMessage.isNotBlank()) {
+                    if (selectedCategory != null && requestMessage.isNotBlank()) {
                         viewModel.saveRequestHelp(
                             requestMessage = requestMessage,
                             requestDate = currentDateAndTime,
@@ -169,7 +160,7 @@ fun RequestedHelpScreen(viewModel: RequestedHelpViewModel, navController: NavCon
                             efectiveComments = "",
                             userId = UserSession.userId.toString(),
                             onSuccess = {
-                                println("Solicitud de ayuda guardada con éxito.")
+                                Log.i(TAG, "Solicitud de ayuda guardada con éxito.")
                                 Toast.makeText(
                                     context,
                                     "Solicitud de ayuda guardada con éxito.",
@@ -178,7 +169,7 @@ fun RequestedHelpScreen(viewModel: RequestedHelpViewModel, navController: NavCon
                                 navController.navigate(BottomNavItem.History.route)
                             },
                             onFailure = { exception ->
-                                println("Error al enviar solicitud de ayuda: $exception")
+                                Log.e(TAG,"Error al enviar solicitud de ayuda. ", exception)
                                 Toast.makeText(
                                     context,
                                     "Error al guardar la solicitud de ayuda: ${exception.message}",
@@ -187,7 +178,6 @@ fun RequestedHelpScreen(viewModel: RequestedHelpViewModel, navController: NavCon
                             }
                         )
                     } else {
-                        println("Por favor, completa todos los campos.")
                         Toast.makeText(
                             context,
                             "Por favor, completa todos los campos.",
@@ -202,9 +192,9 @@ fun RequestedHelpScreen(viewModel: RequestedHelpViewModel, navController: NavCon
         }
     }
 }
-
+/*
 @Preview(showBackground = true)
 @Composable
 fun PreviewRequestedHelpScreen() {
-    //RequestedHelpScreen(viewModel = RequestedHelpViewModel())
-}
+    RequestedHelpScreen(viewModel = RequestedHelpViewModel())
+} */

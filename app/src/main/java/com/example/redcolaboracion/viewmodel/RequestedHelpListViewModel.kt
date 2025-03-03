@@ -2,7 +2,6 @@ package com.example.redcolaboracion.viewmodel
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
-import com.example.redcolaboracion.model.Category
 import com.example.redcolaboracion.model.RequestedHelp
 import com.google.firebase.Firebase
 import com.google.firebase.Timestamp
@@ -12,8 +11,8 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 class RequestedHelpListViewModel: ViewModel() {
+    val TAG = "RequestedHelpListViewModel"
     var uiRequestedHelpList = mutableStateListOf<RequestedHelp>()
-    val TAG = "RequestedHelpViewModel"
 
     fun readEvent(userId: String? = null, category: String? = null) {
         val db = Firebase.firestore
@@ -21,7 +20,6 @@ class RequestedHelpListViewModel: ViewModel() {
 
         var query: Query = db.collection("requestedHelp")
 
-        // Agrega filtros dinámicamente si los parámetros no son nulos
         if (userId != null) {
             query = query.whereEqualTo("userId", userId)
         }
@@ -29,45 +27,40 @@ class RequestedHelpListViewModel: ViewModel() {
             query = query.whereEqualTo("category", category)
             query = query.whereEqualTo("status", "Solicitada")
         }
-        // Ejecutar la consulta
+
         query.get().addOnSuccessListener { documents ->
-            val source = if (documents != null && documents.metadata.hasPendingWrites()) {
-                "Local"
-            } else {
-                "Server"
-            }
 
             uiRequestedHelpList.clear()
             for (doc in documents) {
-                val doc_id = doc.id
-                val doc_requestmessage = doc["message"].toString()
-                val doc_requestdate_stamp: Timestamp = doc["requestDate"] as Timestamp
-                val doc_requestdate = formato.format(doc_requestdate_stamp.toDate()).toString()
-                val doc_category = doc["category"].toString()
-                val doc_priority = doc["priority"].toString()
-                val doc_status = doc["status"].toString()
-                val doc_efectiveHelp = doc["efectiveHelp"].toString()
-                val doc_efectiveDate_stamp: Timestamp = doc["efectiveDate"] as Timestamp
-                val doc_efectiveDate = formato.format(doc_efectiveDate_stamp.toDate()).toString()
-                val doc_userId = doc["userId"].toString()
+                val docId = doc.id
+                val docRequestmessage = doc["message"].toString()
+                val docRequestdateStamp: Timestamp = doc["requestDate"] as Timestamp
+                val docRequestdate = formato.format(docRequestdateStamp.toDate()).toString()
+                val docCategory = doc["category"].toString()
+                val docPriority = doc["priority"].toString()
+                val docStatus = doc["status"].toString()
+                val docEfectiveHelp = doc["efectiveHelp"].toString()
+                val docEfectiveDateStamp: Timestamp = doc["efectiveDate"] as Timestamp
+                val docEfectiveDate = formato.format(docEfectiveDateStamp.toDate()).toString()
+                val docUserId = doc["userId"].toString()
 
-                db.collection("users").document(doc_userId).get()
+                db.collection("users").document(docUserId).get()
                     .addOnSuccessListener { userDoc ->
-                        val doc_requestedUser =
+                        val docRequestedUser =
                             userDoc["name"].toString() + " " + userDoc["lastname"].toString()
 
-                        val RequestedHelp1 = RequestedHelp(
-                            id = doc_id,
-                            requestMessage = doc_requestmessage,
-                            requestDate = doc_requestdate,
-                            category = doc_category,
-                            priority = doc_priority,
-                            status = doc_status,
-                            efectiveHelp = doc_efectiveHelp,
-                            efectiveDate = doc_efectiveDate,
-                            requestUser = doc_requestedUser
+                        val requestedHelp1 = RequestedHelp(
+                            id = docId,
+                            requestMessage = docRequestmessage,
+                            requestDate = docRequestdate,
+                            category = docCategory,
+                            priority = docPriority,
+                            status = docStatus,
+                            efectiveHelp = docEfectiveHelp,
+                            efectiveDate = docEfectiveDate,
+                            requestUser = docRequestedUser
                         )
-                        uiRequestedHelpList.add(RequestedHelp1)
+                        uiRequestedHelpList.add(requestedHelp1)
                     }
             }
         }

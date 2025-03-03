@@ -22,7 +22,6 @@ class GivedHelpViewModel: ViewModel() {
         uidRequestedHelp: String,
         comments: String,
         offeredDate: Timestamp,
-        givedDate: Timestamp,
         uidUser: String,
         onSuccess: () -> Unit,
         onFailure: (Exception) -> Unit
@@ -31,8 +30,8 @@ class GivedHelpViewModel: ViewModel() {
             val data = mapOf(
                 "uidRequestedHelp" to uidRequestedHelp,
                 "comments" to comments,
-                "offeredDate" to offeredDate, //Timestamp(offeredDate),
-                "givedDate" to offeredDate, //Timestamp(givedDate),
+                "offeredDate" to offeredDate,
+                "givedDate" to offeredDate,
                 "uidUser" to uidUser
             )
 
@@ -48,13 +47,13 @@ class GivedHelpViewModel: ViewModel() {
                             onSuccess()
                         },
                         onFailure = { exception ->
-                            Log.e(TAG, "Error al actualizar RequestHelp: $exception")
+                            Log.e(TAG, "Error al actualizar RequestHelp. ", exception)
                             onFailure(exception)
                         }
                     )
                 }
                 .addOnFailureListener { exception ->
-                    Log.e(TAG, "Error al guardar givedHelp: $exception")
+                    Log.e(TAG, "Error al guardar givedHelp. ", exception)
                     onFailure(exception)
                 }
         }
@@ -65,7 +64,7 @@ class GivedHelpViewModel: ViewModel() {
         val docRef = db.collection("requestedHelp").document(id)
         docRef.addSnapshotListener { snapshot, e ->
             if (e != null) {
-                Log.d(TAG, "Error al recuperar requestedHelp", e)
+                Log.e(TAG, "Error al recuperar requestedHelp", e)
                 return@addSnapshotListener
             }
 
@@ -78,7 +77,7 @@ class GivedHelpViewModel: ViewModel() {
             val formato = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
             if (snapshot != null && snapshot.exists()) {
-                Log.d(TAG, "Datos recuperados: $source data: ${snapshot.data}")
+                Log.i(TAG, "Datos recuperados: $source data: ${snapshot.data}")
 
                 val docId = snapshot.get("id").toString()
                 val docRequestmessage = snapshot.get("requestMessage").toString()
@@ -90,7 +89,7 @@ class GivedHelpViewModel: ViewModel() {
                 val docEfectiveHelp = snapshot.get("efectiveHelp").toString()
                 val docEfectiveDateStamp: Timestamp? = snapshot.get("efectiveDate") as? Timestamp
                 val docEfectiveDate = formato.format(docEfectiveDateStamp?.toDate()!!).toString()
-                val docEfectiveComments = snapshot.get("efectiveComments").toString().toString()
+                val docEfectiveComments = snapshot.get("efectiveComments").toString()
                 val docUserId = snapshot.get("userId").toString()
 
                 db.collection("users").document(docUserId).get()

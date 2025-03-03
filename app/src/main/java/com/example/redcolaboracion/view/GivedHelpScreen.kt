@@ -55,11 +55,14 @@ fun GivedHelpScreen(viewModel: RequestedHelpListViewModel, navController: NavCon
     }
     var selectedCategory by remember { mutableStateOf("") }
 
-    Scaffold() {
-        TopMenu(
-            title = "Requerimientos de Ayudas",
-            navController = navController
-        )
+    Scaffold(
+        topBar = {
+            TopMenu(
+                title = "Requerimientos de Ayudas",
+                navController = navController
+            )
+        }
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -111,7 +114,7 @@ fun RequestedHelpRowG(requestedHelp: RequestedHelp, onClick:(String) -> Unit) {
             modifier = Modifier
                 .fillMaxWidth()
         ) {
-            Row() {
+            Row {
                 Text(
                     text = "Id:",
                     modifier = Modifier
@@ -126,7 +129,7 @@ fun RequestedHelpRowG(requestedHelp: RequestedHelp, onClick:(String) -> Unit) {
                         .padding(horizontal = 2.dp)
                 )
             }
-            Row() {
+            Row {
                 Text(
                     text = "Categoría:",
                     modifier = Modifier
@@ -141,7 +144,7 @@ fun RequestedHelpRowG(requestedHelp: RequestedHelp, onClick:(String) -> Unit) {
                         .padding(horizontal = 2.dp)
                 )
             }
-            Row() {
+            Row {
                 Text(
                     text = "Solicitante:",
                     modifier = Modifier
@@ -156,7 +159,7 @@ fun RequestedHelpRowG(requestedHelp: RequestedHelp, onClick:(String) -> Unit) {
                         .padding(horizontal = 2.dp)
                 )
             }
-            Row() {
+            Row {
                 Text(
                     text = "Fecha:",
                     modifier = Modifier
@@ -171,7 +174,7 @@ fun RequestedHelpRowG(requestedHelp: RequestedHelp, onClick:(String) -> Unit) {
                         .padding(horizontal = 2.dp)
                 )
             }
-            Row() {
+            Row {
                 Text(
                     text = "Prioridad:",
                     modifier = Modifier
