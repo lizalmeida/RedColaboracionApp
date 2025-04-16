@@ -144,7 +144,7 @@ class ProfileViewModel: ViewModel() {
                 } else {
                     val user: FirebaseUser? = auth.currentUser
                     val uid = user?.uid
-                    Log.e(TAG, "Usuario ingresa pero con error.")
+                    Log.e(TAG, "Usuario ingresa pero con error. Usuario: $uid")
 
                     val error = task.exception?.localizedMessage ?: "Error desconocido"
                     onLoginFailed(error)
@@ -166,7 +166,6 @@ class ProfileViewModel: ViewModel() {
     }
 
     suspend fun getUserProfileImageUrl(userId: String): String? {
-        println("profile_picture: " + userId)
         return try {
             val storageRef = Firebase.storage.reference.child("profile_pictures/$userId.jpg")
             storageRef.downloadUrl.await().toString()
